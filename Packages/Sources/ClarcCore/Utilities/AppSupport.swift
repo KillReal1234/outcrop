@@ -13,7 +13,10 @@ public enum AppSupport {
     }()
 
     private static var directoryName: String {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.idealapp.Clarc"
+        directoryName(forBundleID: Bundle.main.bundleIdentifier ?? "com.idealapp.Clarc")
+    }
+
+    static func directoryName(forBundleID bundleID: String) -> String {
         if bundleID == "com.idealapp.Clarc" { return "Clarc" }
         let suffix = bundleID.split(separator: ".").last.map(String.init) ?? "dev"
         return "Clarc.\(suffix)"

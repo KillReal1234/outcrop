@@ -63,10 +63,7 @@ public enum ChatShortcutRegistry {
     // MARK: - Persistence
 
     private static var storeURL: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport
-            .appendingPathComponent("Clarc")
-            .appendingPathComponent("shortcuts.json")
+        AppSupport.bundleScopedURL.appendingPathComponent("shortcuts.json")
     }
 
     private static func loadShortcuts() -> [ChatShortcut] {

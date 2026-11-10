@@ -244,10 +244,7 @@ public enum SlashCommandRegistry {
     // MARK: - Persistence
 
     private static var storeURL: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport
-            .appendingPathComponent("Clarc")
-            .appendingPathComponent("custom_commands.json")
+        AppSupport.bundleScopedURL.appendingPathComponent("custom_commands.json")
     }
 
     private static func loadStore() -> CustomCommandStore {
