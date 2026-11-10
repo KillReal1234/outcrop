@@ -4,5 +4,17 @@
     <title>Outcrop</title>
     <description>Outcrop Updates</description>
     <language>en</language>
+    <item>
+      <title>Outcrop v0.1.0</title>
+      <sparkle:version>1</sparkle:version>
+      <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <pubDate>Tue, 10 Nov 2026 09:34:36 +0000</pubDate>
+      <enclosure
+        url="https://github.com/KillReal1234/outcrop/releases/download/v0.1.0/Outcrop-0.1.0.zip"
+        length="7570712"
+        type="application/octet-stream"
+        sparkle:edSignature="L2G7MRfqS31BTsbzuFuchPSPPyrPyJhMh/U4C9SOVJd3S0ZCc/KT67nH11eK0L1LtXJDbkBynS5U8kKlwXsRAg==" />
+    </item>
   </channel>
 </rss>
