@@ -27,6 +27,12 @@
               "value": {
                 "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
               }
+            },
+            {
+              "appearance": "tinted",
+              "value": {
+                "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+              }
             }
           ],
           "image-name": "surface.svg",
@@ -41,6 +47,12 @@
             },
             {
               "appearance": "dark",
+              "value": {
+                "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+              }
+            },
+            {
+              "appearance": "tinted",
               "value": {
                 "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
               }
