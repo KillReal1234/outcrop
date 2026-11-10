@@ -16,5 +16,17 @@
         type="application/octet-stream"
         sparkle:edSignature="L2G7MRfqS31BTsbzuFuchPSPPyrPyJhMh/U4C9SOVJd3S0ZCc/KT67nH11eK0L1LtXJDbkBynS5U8kKlwXsRAg==" />
     </item>
+    <item>
+      <title>Outcrop v0.1.1</title>
+      <sparkle:version>2</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+      <pubDate>Tue, 10 Nov 2026 09:39:39 +0000</pubDate>
+      <enclosure
+        url="https://github.com/KillReal1234/outcrop/releases/download/v0.1.1/Outcrop-0.1.1.zip"
+        length="7570701"
+        type="application/octet-stream"
+        sparkle:edSignature="ptaeYs3E467b4xMOko96ju4vZSpl79kiN/MPetc3HCCAOED1/EbJYm6zbLDmUt2MUbCmj1Ifessf9mUzE73MDg==" />
+    </item>
   </channel>
 </rss>
