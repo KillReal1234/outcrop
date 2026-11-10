@@ -58,10 +58,10 @@
 "Invalid JSON format." = "JSON 格式无效。";
 "Imported %lld custom commands." = "已导入 %lld 个自定义命令。";
 "A command with this name already exists." = "已存在同名命令。";
-"Clarc slash command export file." = "Clarc 斜杠命令导出文件。";
+"Clarc slash command export file." = "Outcrop 斜杠命令导出文件。";
 "Usage:" = "用法：";
 "Edit the array below to add, remove, or change custom slash commands." = "编辑下方数组即可添加、删除或更改自定义斜杠命令。";
-"The leading slash is optional while editing names; Clarc saves names without it." = "编辑名称时开头的 / 是可选的；Clarc 保存名称时会去掉它。";
+"The leading slash is optional while editing names; Clarc saves names without it." = "编辑名称时开头的 / 是可选的；Outcrop 保存名称时会去掉它。";
 "Built-in command names are ignored on import and are never exported." = "内置命令名称在导入时会被忽略，且永远不会被导出。";
 "Each custom command supports these properties:" = "每个自定义命令支持以下属性：";
 "name: command name without the leading slash." = "name：不含开头 / 的命令名称。";
@@ -72,7 +72,7 @@
 "All properties example:" = "全部属性示例：";
 "Short description shown in the command picker" = "显示在命令选择器中的简短描述";
 "Optional longer description shown in command details" = "显示在命令详情中的可选长描述";
-"Clarc shortcut export file." = "Clarc 快捷按钮导出文件。";
+"Clarc shortcut export file." = "Outcrop 快捷按钮导出文件。";
 "Edit the array below to add, remove, or change shortcuts." = "编辑下方数组即可添加、删除或更改快捷按钮。";
 "Each shortcut supports these properties:" = "每个快捷按钮支持以下属性：";
 "id: optional unique identifier (UUID). Auto-generated on import if omitted." = "id：可选的唯一标识符（UUID）。省略时会在导入时自动生成。";

@@ -58,10 +58,10 @@
 "Invalid JSON format." = "無効な JSON 形式です。";
 "Imported %lld custom commands." = "%lld 件のカスタムコマンドをインポートしました。";
 "A command with this name already exists." = "この名前のコマンドはすでに存在します。";
-"Clarc slash command export file." = "Clarc スラッシュコマンドのエクスポートファイルです。";
+"Clarc slash command export file." = "Outcrop スラッシュコマンドのエクスポートファイルです。";
 "Usage:" = "使い方:";
 "Edit the array below to add, remove, or change custom slash commands." = "下の配列を編集して、カスタムスラッシュコマンドを追加、削除、変更してください。";
-"The leading slash is optional while editing names; Clarc saves names without it." = "名前を編集する際、先頭の / は任意です。Clarc は / なしで保存します。";
+"The leading slash is optional while editing names; Clarc saves names without it." = "名前を編集する際、先頭の / は任意です。Outcrop は / なしで保存します。";
 "Built-in command names are ignored on import and are never exported." = "組み込みコマンド名はインポート時に無視され、エクスポートにも含まれません。";
 "Each custom command supports these properties:" = "各カスタムコマンドは次のプロパティに対応しています:";
 "name: command name without the leading slash." = "name: 先頭の / を除いたコマンド名です。";
@@ -72,7 +72,7 @@
 "All properties example:" = "全プロパティの例:";
 "Short description shown in the command picker" = "コマンド選択に表示される短い説明";
 "Optional longer description shown in command details" = "コマンド詳細に表示される任意の長い説明";
-"Clarc shortcut export file." = "Clarc ショートカットのエクスポートファイルです。";
+"Clarc shortcut export file." = "Outcrop ショートカットのエクスポートファイルです。";
 "Edit the array below to add, remove, or change shortcuts." = "下の配列を編集して、ショートカットを追加、削除、変更してください。";
 "Each shortcut supports these properties:" = "各ショートカットは次のプロパティに対応しています:";
 "id: optional unique identifier (UUID). Auto-generated on import if omitted." = "id: 任意の一意な識別子（UUID）。インポート時に省略すると自動生成されます。";

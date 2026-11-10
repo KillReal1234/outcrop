@@ -33,7 +33,7 @@
 "font.size.hint" = "Ajusta de forma independiente el tamaño de fuente de la interfaz y de los mensajes.";
 "Notifications" = "Notificaciones";
 "Notify when response completes" = "Notificar al completar la respuesta";
-"Sends a system notification while Clarc is in the background." = "Envía una notificación del sistema cuando Clarc está en segundo plano.";
+"Sends a system notification while Clarc is in the background." = "Envía una notificación del sistema cuando Outcrop está en segundo plano.";
 "Plan usage" = "Uso del plan";
 "Show plan usage in the status line" = "Mostrar el uso del plan en la barra de estado";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "Lee el token de inicio de sesión de Claude Code del llavero y solicita directamente a Anthropic tu uso de 5 horas y de 7 días.";
@@ -110,7 +110,7 @@
 "Projects" = "Proyectos";
 "Rename Project" = "Renombrar proyecto";
 "Delete Project" = "Eliminar proyecto";
-"This will remove the project from Clarc. The files on disk will not be deleted." = "Esto eliminará el proyecto de Clarc. Los archivos del disco no se eliminarán.";
+"This will remove the project from Clarc. The files on disk will not be deleted." = "Esto eliminará el proyecto de Outcrop. Los archivos del disco no se eliminarán.";
 "Project name" = "Nombre del proyecto";
 
 // MARK: - HistoryListView
@@ -193,7 +193,7 @@
 "Install command:" = "Comando de instalación:";
 "Check Again" = "Volver a comprobar";
 "Get Started" = "Empezar";
-"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "Comparte el historial de sesiones con la CLI del terminal en ~/.claude/projects/. Desactívalo para mantener las sesiones de Clarc separadas. Puedes cambiarlo más adelante en Configuración.";
+"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "Comparte el historial de sesiones con la CLI del terminal en ~/.claude/projects/. Desactívalo para mantener las sesiones de Outcrop separadas. Puedes cambiarlo más adelante en Configuración.";
 
 // MARK: - GitHubLoginView
 "Connect GitHub to fetch your repo list and add projects with a single click." = "Conecta GitHub para obtener tu lista de repositorios y añadir proyectos con un solo clic.";
@@ -241,7 +241,7 @@
 
 // MARK: - UserManualView
 // Topic titles
-"About Clarc" = "Acerca de Clarc";
+"About Clarc" = "Acerca de Outcrop";
 "Project Management" = "Gestión de proyectos";
 "Chat Basics" = "Conceptos básicos del chat";
 "Keyboard Shortcuts" = "Atajos de teclado";
@@ -254,7 +254,7 @@
 "Status Line" = "Barra de estado";
 
 // Overview
-"What is Clarc?" = "¿Qué es Clarc?";
+"What is Clarc?" = "¿Qué es Outcrop?";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "Un cliente de escritorio nativo de macOS para la CLI de Claude Code. Usa todas las funciones de Claude Code mediante una interfaz gráfica refinada, sin necesidad de un terminal.";
 "Main Layout" = "Diseño principal";
 "The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "La barra lateral izquierda tiene las pestañas Sesiones y Archivos. Las pestañas de proyecto aparecen en la parte superior del área de chat: haz clic para cambiar de proyecto. El panel del inspector a la derecha contiene las pestañas Terminal y Nota.";
@@ -351,7 +351,7 @@
 "Attaching Files" = "Adjuntar archivos";
 "Click the clip icon to the left of the input field, or drag and drop files onto the input field. When dragging, the input field border highlights in the accent color to show the drop zone." = "Haz clic en el icono del clip a la izquierda del campo de entrada o arrastra y suelta archivos sobre el campo de entrada. Al arrastrar, el borde del campo de entrada se resalta con el color de acento para mostrar la zona de destino.";
 "Clipboard Detection" = "Detección del portapapeles";
-"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "Pegar (⌘V) es inteligente: Clarc detecta lo que hay en el portapapeles y lo gestiona automáticamente.";
+"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "Pegar (⌘V) es inteligente: Outcrop detecta lo que hay en el portapapeles y lo gestiona automáticamente.";
 "Image data (PNG/TIFF) → attached as an image" = "Datos de imagen (PNG/TIFF) → se adjunta como imagen";
 "File path → attached as a file" = "Ruta de archivo → se adjunta como archivo";
 "URL → attached as a URL reference" = "URL → se adjunta como referencia URL";
@@ -389,12 +389,12 @@
 "The exit code is shown at the bottom — \"exit 0\" means the command completed successfully." = "El código de salida se muestra en la parte inferior: \"exit 0\" significa que el comando se completó correctamente.";
 
 // GitHub Integration
-"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "Haz clic en el botón con el logo de GitHub en la parte superior de la barra lateral para abrir el panel de GitHub. Tras conectar tu cuenta de GitHub, tus repositorios se enumeran y puedes añadirlos a Clarc con un solo clic.";
+"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "Haz clic en el botón con el logo de GitHub en la parte superior de la barra lateral para abrir el panel de GitHub. Tras conectar tu cuenta de GitHub, tus repositorios se enumeran y puedes añadirlos a Outcrop con un solo clic.";
 "Adding a Repository" = "Añadir un repositorio";
-"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "Busca un repositorio por nombre y haz clic en Añadir. Clarc lo clona automáticamente y lo abre como un nuevo proyecto.";
+"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "Busca un repositorio por nombre y haz clic en Añadir. Outcrop lo clona automáticamente y lo abre como un nuevo proyecto.";
 "Private repository" = "Repositorio privado";
 "Public repository" = "Repositorio público";
-"Already added to Clarc" = "Ya añadido a Clarc";
+"Already added to Clarc" = "Ya añadido a Outcrop";
 
 // Skill Marketplace
 "Click the brain icon (🧠) in the toolbar to browse the MCP plugin catalog published on Anthropic's GitHub. Plugins can be filtered by category or searched by name, description, or author." = "Haz clic en el icono de cerebro (🧠) de la barra de herramientas para explorar el catálogo de complementos MCP publicado en el GitHub de Anthropic. Los complementos se pueden filtrar por categoría o buscar por nombre, descripción o autor.";
@@ -483,7 +483,7 @@
 // Settings & Themes topic
 "Settings & Themes" = "Configuración y temas";
 "Opening Settings" = "Abrir Configuración";
-"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into four tabs: General, Message, Slash Commands, and Shortcuts." = "Elige Clarc → Configuración en la barra de menús o pulsa ⌘, para abrir la ventana de Configuración. La configuración se organiza en cuatro pestañas: General, Mensaje, Comandos de barra y Atajos.";
+"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into four tabs: General, Message, Slash Commands, and Shortcuts." = "Elige Outcrop → Configuración en la barra de menús o pulsa ⌘, para abrir la ventana de Configuración. La configuración se organiza en cuatro pestañas: General, Mensaje, Comandos de barra y Atajos.";
 "General Tab" = "Pestaña General";
 "The General tab configures session defaults. Changes apply to newly created sessions — existing sessions keep their current values." = "La pestaña General configura los valores predeterminados de las sesiones. Los cambios se aplican a las sesiones nuevas; las sesiones existentes conservan sus valores actuales.";
 "Accent color palette (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)" = "Paleta de colores de acento (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)";
@@ -492,7 +492,7 @@
 "Claude model used when starting a new session" = "Modelo de Claude que se usa al iniciar una nueva sesión";
 "Permission mode applied to new sessions" = "Modo de permisos aplicado a las sesiones nuevas";
 "Reasoning effort applied to new sessions" = "Esfuerzo de razonamiento aplicado a las sesiones nuevas";
-"Show a system notification when a response completes while Clarc is in the background" = "Muestra una notificación del sistema cuando se completa una respuesta mientras Clarc está en segundo plano";
+"Show a system notification when a response completes while Clarc is in the background" = "Muestra una notificación del sistema cuando se completa una respuesta mientras Outcrop está en segundo plano";
 "Model, permission mode, and effort can also be overridden per session from the toolbar — the chosen value sticks to that session." = "El modelo, el modo de permisos y el esfuerzo también se pueden cambiar por sesión desde la barra de herramientas; el valor elegido se mantiene en esa sesión.";
 "Message Tab" = "Pestaña Mensaje";
 "The Message tab controls chat display and attachment behavior." = "La pestaña Mensaje controla la visualización del chat y el comportamiento de los adjuntos.";
@@ -502,7 +502,7 @@
 "Automatically show a preview chip when image data is pasted" = "Muestra automáticamente un chip de vista previa al pegar datos de imagen.";
 "Automatically convert long text (200+ characters) into an attachment chip when pasted" = "Convierte automáticamente el texto largo (más de 200 caracteres) en un chip de adjunto al pegarlo.";
 "Themes" = "Temas";
-"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Clarc incluye seis temas de color de acento. Previsualiza cada uno directamente desde el selector de temas: toda la app cambia de color en vivo a medida que eliges.";
+"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Outcrop incluye seis temas de color de acento. Previsualiza cada uno directamente desde el selector de temas: toda la app cambia de color en vivo a medida que eliges.";
 "Terracotta" = "Terracotta";
 "Ocean" = "Ocean";
 "Forest" = "Forest";
@@ -518,14 +518,14 @@
 "Slash Commands & Shortcuts Tabs" = "Pestañas Comandos de barra y Atajos";
 "The Slash Commands tab manages built-in and custom commands — edit, enable/disable, add, or delete. JSON import/export covers custom commands only. The Shortcuts tab manages shortcut buttons with JSON import/export support." = "La pestaña Comandos de barra gestiona los comandos integrados y personalizados: editar, activar/desactivar, añadir o eliminar. La importación/exportación JSON solo abarca los comandos personalizados. La pestaña Atajos gestiona los botones de atajo con compatibilidad para importación/exportación JSON.";
 "Checking for Updates" = "Buscar actualizaciones";
-"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "Abre Clarc → Buscar actualizaciones… para ejecutar manualmente la comprobación de actualizaciones de Sparkle. Las actualizaciones también se comprueban automáticamente al arrancar.";
+"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "Abre Outcrop → Buscar actualizaciones… para ejecutar manualmente la comprobación de actualizaciones de Sparkle. Las actualizaciones también se comprueban automáticamente al arrancar.";
 
 // User Guide — Sessions & Chat additions
 "While Claude is responding, the send button turns into a stop button — click it or press Escape to cancel." = "Mientras Claude responde, el botón de enviar se convierte en un botón de detener; haz clic en él o pulsa Escape para cancelar.";
 "Thinking Traces" = "Trazas de razonamiento";
 "When the model reasons before answering, its thinking appears in a collapsible block above the response. It expands automatically while Claude is thinking so you can follow along, then collapses once the answer begins. Click the header to expand or collapse it yourself." = "Cuando el modelo razona antes de responder, su razonamiento aparece en un bloque plegable encima de la respuesta. Se expande automáticamente mientras Claude piensa para que puedas seguirlo y se pliega cuando comienza la respuesta. Haz clic en el encabezado para expandirlo o plegarlo manualmente.";
 "Forking a Conversation" = "Bifurcar una conversación";
-"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "Pasa el cursor sobre cualquier mensaje del asistente y haz clic en el icono de bifurcación para bifurcar la conversación desde ese punto. Clarc abre una nueva sesión con el historial hasta ese mensaje, deja la original intacta y cambia a la nueva rama. Las ramas bifurcadas también aparecen en el selector externo claude --resume.";
+"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "Pasa el cursor sobre cualquier mensaje del asistente y haz clic en el icono de bifurcación para bifurcar la conversación desde ese punto. Outcrop abre una nueva sesión con el historial hasta ese mensaje, deja la original intacta y cambia a la nueva rama. Las ramas bifurcadas también aparecen en el selector externo claude --resume.";
 "Completing & Selecting Sessions" = "Completar y seleccionar sesiones";
 "Click the circle to the left of a session title to mark it complete; completed sessions appear dimmed with a strikethrough. Use the checkmark button in the Sessions header to hide or show completed sessions." = "Haz clic en el círculo a la izquierda del título de una sesión para marcarla como completada; las sesiones completadas aparecen atenuadas y tachadas. Usa el botón de marca de verificación en el encabezado de Sesiones para ocultar o mostrar las sesiones completadas.";
 "Add or remove a session from the selection" = "Añadir o quitar una sesión de la selección";

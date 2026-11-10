@@ -33,7 +33,7 @@
 "font.size.hint" = "인터페이스와 메시지 폰트 크기를 각각 조절합니다.";
 "Notifications" = "알림";
 "Notify when response completes" = "응답 완료 시 알림";
-"Sends a system notification while Clarc is in the background." = "Clarc가 백그라운드에 있을 때 시스템 알림을 보냅니다.";
+"Sends a system notification while Clarc is in the background." = "Outcrop이 백그라운드에 있을 때 시스템 알림을 보냅니다.";
 "Plan usage" = "플랜 사용량";
 "Show plan usage in the status line" = "상태 표시줄에 플랜 사용량 표시";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "키체인에서 Claude Code 로그인 토큰을 읽어 5시간 및 7일 사용량을 Anthropic에 직접 요청합니다.";
@@ -110,7 +110,7 @@
 "Projects" = "프로젝트";
 "Rename Project" = "프로젝트 이름 변경";
 "Delete Project" = "프로젝트 삭제";
-"This will remove the project from Clarc. The files on disk will not be deleted." = "Clarc에서 프로젝트가 제거됩니다. 디스크의 파일은 삭제되지 않습니다.";
+"This will remove the project from Clarc. The files on disk will not be deleted." = "Outcrop에서 프로젝트가 제거됩니다. 디스크의 파일은 삭제되지 않습니다.";
 "Project name" = "프로젝트 이름";
 
 // MARK: - HistoryListView
@@ -193,7 +193,7 @@
 "Install command:" = "설치 커맨드:";
 "Check Again" = "다시 확인";
 "Get Started" = "시작하기";
-"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "~/.claude/projects/의 터미널 CLI와 세션 기록을 공유합니다. 끄면 Clarc 세션을 분리해서 사용합니다. 이후 설정에서 변경할 수 있습니다.";
+"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "~/.claude/projects/의 터미널 CLI와 세션 기록을 공유합니다. 끄면 Outcrop 세션을 분리해서 사용합니다. 이후 설정에서 변경할 수 있습니다.";
 
 // MARK: - GitHubLoginView
 "Connect GitHub to fetch your repo list and add projects with a single click." = "GitHub를 연결하면 저장소 목록을 가져오고 한 번의 클릭으로 프로젝트를 추가할 수 있습니다.";
@@ -241,7 +241,7 @@
 
 // MARK: - UserManualView
 // Topic titles
-"About Clarc" = "Clarc 소개";
+"About Clarc" = "Outcrop 소개";
 "Project Management" = "프로젝트 관리";
 "Chat Basics" = "채팅 기본";
 "Keyboard Shortcuts" = "단축키";
@@ -254,7 +254,7 @@
 "Status Line" = "상태 표시줄";
 
 // Overview
-"What is Clarc?" = "Clarc란?";
+"What is Clarc?" = "Outcrop이란?";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "Claude Code CLI를 위한 네이티브 macOS 데스크톱 클라이언트입니다. 터미널 없이 세련된 GUI로 Claude Code의 모든 기능을 사용할 수 있습니다.";
 "Main Layout" = "기본 레이아웃";
 "The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "왼쪽 사이드바에는 세션 및 파일 탭이 있습니다. 채팅 영역 상단에 프로젝트 탭이 표시되며 클릭하여 전환할 수 있습니다. 오른쪽 인스펙터 패널에는 터미널과 메모 탭이 있습니다.";
@@ -351,7 +351,7 @@
 "Attaching Files" = "파일 첨부";
 "Click the clip icon to the left of the input field, or drag and drop files onto the input field. When dragging, the input field border highlights in the accent color to show the drop zone." = "입력창 왼쪽의 클립 아이콘을 클릭하거나 파일을 입력창으로 드래그하세요. 드래그 중에는 입력창 테두리가 강조 색상으로 표시됩니다.";
 "Clipboard Detection" = "클립보드 감지";
-"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "붙여넣기(⌘V)가 스마트합니다 — Clarc가 클립보드 내용을 자동으로 감지하여 처리합니다.";
+"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "붙여넣기(⌘V)가 스마트합니다 — Outcrop이 클립보드 내용을 자동으로 감지하여 처리합니다.";
 "Image data (PNG/TIFF) → attached as an image" = "이미지 데이터(PNG/TIFF) → 이미지로 첨부";
 "File path → attached as a file" = "파일 경로 → 파일로 첨부";
 "URL → attached as a URL reference" = "URL → URL 참조로 첨부";
@@ -389,12 +389,12 @@
 "The exit code is shown at the bottom — \"exit 0\" means the command completed successfully." = "하단에 종료 코드가 표시됩니다 — \"exit 0\"은 커맨드가 성공적으로 완료되었음을 의미합니다.";
 
 // GitHub Integration
-"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "사이드바 상단의 GitHub 마크 버튼을 클릭하여 GitHub 패널을 열어보세요. GitHub 계정을 연결하면 저장소 목록이 표시되고 한 번의 클릭으로 Clarc에 추가할 수 있습니다.";
+"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "사이드바 상단의 GitHub 마크 버튼을 클릭하여 GitHub 패널을 열어보세요. GitHub 계정을 연결하면 저장소 목록이 표시되고 한 번의 클릭으로 Outcrop에 추가할 수 있습니다.";
 "Adding a Repository" = "저장소 추가";
-"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "이름으로 저장소를 검색한 후 추가 버튼을 클릭하세요. Clarc가 자동으로 클론하고 새 프로젝트로 엽니다.";
+"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "이름으로 저장소를 검색한 후 추가 버튼을 클릭하세요. Outcrop이 자동으로 클론하고 새 프로젝트로 엽니다.";
 "Private repository" = "비공개 저장소";
 "Public repository" = "공개 저장소";
-"Already added to Clarc" = "이미 Clarc에 추가됨";
+"Already added to Clarc" = "이미 Outcrop에 추가됨";
 
 // Skill Marketplace
 "Click the brain icon (🧠) in the toolbar to browse the MCP plugin catalog published on Anthropic's GitHub. Plugins can be filtered by category or searched by name, description, or author." = "툴바의 🧠 아이콘을 클릭하면 Anthropic GitHub에 게시된 MCP 플러그인 카탈로그를 탐색할 수 있습니다. 카테고리별 필터링 또는 이름, 설명, 작성자로 검색이 가능합니다.";
@@ -483,7 +483,7 @@
 // Settings & Themes topic
 "Settings & Themes" = "설정 및 테마";
 "Opening Settings" = "설정 열기";
-"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into four tabs: General, Message, Slash Commands, and Shortcuts." = "메뉴 막대에서 Clarc → 설정을 선택하거나 ⌘,를 눌러 설정 창을 엽니다. 설정은 일반, 메시지, 슬래시 커맨드, 단축키 네 개의 탭으로 구성되어 있습니다.";
+"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into four tabs: General, Message, Slash Commands, and Shortcuts." = "메뉴 막대에서 Outcrop → 설정을 선택하거나 ⌘,를 눌러 설정 창을 엽니다. 설정은 일반, 메시지, 슬래시 커맨드, 단축키 네 개의 탭으로 구성되어 있습니다.";
 "General Tab" = "일반 탭";
 "The General tab configures session defaults. Changes apply to newly created sessions — existing sessions keep their current values." = "일반 탭에서 세션 기본값을 설정합니다. 변경사항은 새로 생성되는 세션에 적용되며, 기존 세션은 현재 값을 유지합니다.";
 "Accent color palette (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)" = "강조 색상 팔레트 (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)";
@@ -492,7 +492,7 @@
 "Claude model used when starting a new session" = "새 세션 시작 시 사용할 Claude 모델";
 "Permission mode applied to new sessions" = "새 세션에 적용될 권한 모드";
 "Reasoning effort applied to new sessions" = "새 세션에 적용될 추론 작업량";
-"Show a system notification when a response completes while Clarc is in the background" = "Clarc가 백그라운드에 있을 때 응답이 완료되면 시스템 알림 표시";
+"Show a system notification when a response completes while Clarc is in the background" = "Outcrop이 백그라운드에 있을 때 응답이 완료되면 시스템 알림 표시";
 "Model, permission mode, and effort can also be overridden per session from the toolbar — the chosen value sticks to that session." = "모델, 권한 모드, 작업량은 툴바에서 세션별로도 변경할 수 있으며, 선택한 값은 해당 세션에만 적용됩니다.";
 "Message Tab" = "메시지 탭";
 "The Message tab controls chat display and attachment behavior." = "메시지 탭에서 채팅 표시 및 첨부 파일 동작을 설정합니다.";
@@ -502,7 +502,7 @@
 "Automatically show a preview chip when image data is pasted" = "이미지 데이터 붙여넣기 시 자동으로 미리보기 칩을 표시합니다.";
 "Automatically convert long text (200+ characters) into an attachment chip when pasted" = "긴 텍스트(200자 이상) 붙여넣기 시 자동으로 첨부 파일 칩으로 변환합니다.";
 "Themes" = "테마";
-"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Clarc는 6가지 강조 색상 테마를 제공합니다. 테마 선택기에서 바로 각 테마를 미리볼 수 있으며, 선택과 동시에 앱 전체 색상이 즉시 바뀝니다.";
+"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Outcrop은 6가지 강조 색상 테마를 제공합니다. 테마 선택기에서 바로 각 테마를 미리볼 수 있으며, 선택과 동시에 앱 전체 색상이 즉시 바뀝니다.";
 "Terracotta" = "테라코타";
 "Ocean" = "오션";
 "Forest" = "포레스트";
@@ -518,14 +518,14 @@
 "Slash Commands & Shortcuts Tabs" = "슬래시 커맨드 및 단축키 탭";
 "The Slash Commands tab manages built-in and custom commands — edit, enable/disable, add, or delete. JSON import/export covers custom commands only. The Shortcuts tab manages shortcut buttons with JSON import/export support." = "슬래시 커맨드 탭에서는 기본 및 커스텀 커맨드를 관리합니다 — 편집, 활성화/비활성화, 추가, 삭제가 가능합니다. JSON 가져오기/내보내기는 커스텀 커맨드만 지원합니다. 단축키 탭에서는 단축 버튼을 관리하며 JSON 가져오기/내보내기를 지원합니다.";
 "Checking for Updates" = "업데이트 확인";
-"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "Clarc → 업데이트 확인…을 통해 Sparkle 업데이트 확인을 수동으로 실행할 수 있습니다. 앱 시작 시에도 자동으로 확인됩니다.";
+"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "Outcrop → 업데이트 확인…을 통해 Sparkle 업데이트 확인을 수동으로 실행할 수 있습니다. 앱 시작 시에도 자동으로 확인됩니다.";
 
 // User Guide — Sessions & Chat additions
 "While Claude is responding, the send button turns into a stop button — click it or press Escape to cancel." = "Claude가 응답하는 동안에는 전송 버튼이 중지 버튼으로 바뀝니다. 버튼을 클릭하거나 Escape를 눌러 취소할 수 있습니다.";
 "Thinking Traces" = "사고 과정";
 "When the model reasons before answering, its thinking appears in a collapsible block above the response. It expands automatically while Claude is thinking so you can follow along, then collapses once the answer begins. Click the header to expand or collapse it yourself." = "모델이 답변하기 전에 추론하면 응답 위에 접을 수 있는 블록으로 사고 과정이 표시됩니다. Claude가 생각하는 동안에는 자동으로 펼쳐져 과정을 따라갈 수 있고, 답변이 시작되면 접힙니다. 헤더를 클릭하면 직접 펼치거나 접을 수 있습니다.";
 "Forking a Conversation" = "대화 분기";
-"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "어시스턴트 메시지 위에 마우스를 올리고 분기 아이콘을 클릭하면 해당 지점에서 대화가 분기됩니다. Clarc은 그 메시지까지의 기록을 담은 새 세션을 열고, 원본은 그대로 둔 채 새 분기로 전환합니다. 분기된 세션은 외부 claude --resume 선택 목록에도 표시됩니다.";
+"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "어시스턴트 메시지 위에 마우스를 올리고 분기 아이콘을 클릭하면 해당 지점에서 대화가 분기됩니다. Outcrop은 그 메시지까지의 기록을 담은 새 세션을 열고, 원본은 그대로 둔 채 새 분기로 전환합니다. 분기된 세션은 외부 claude --resume 선택 목록에도 표시됩니다.";
 "Completing & Selecting Sessions" = "세션 완료 및 선택";
 "Click the circle to the left of a session title to mark it complete; completed sessions appear dimmed with a strikethrough. Use the checkmark button in the Sessions header to hide or show completed sessions." = "세션 제목 왼쪽의 원을 클릭하면 완료로 표시됩니다. 완료된 세션은 흐리게 표시되고 제목에 취소선이 그어집니다. 세션 헤더의 체크 버튼으로 완료된 세션을 숨기거나 표시할 수 있습니다.";
 "Add or remove a session from the selection" = "선택 항목에 세션 추가 또는 제거";
