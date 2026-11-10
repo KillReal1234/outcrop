@@ -1,176 +1,130 @@
 # Outcrop
 
-Outcrop is a fork of [Clarc](https://github.com/ttnear/Clarc) by ttnear. It keeps the Apache-2.0 license; see [LICENSE](LICENSE).
+Outcrop is a native macOS client for the [Claude Code](https://code.claude.com/docs/en/overview) CLI, written in Swift and SwiftUI. It runs the real `claude` command line tool underneath and shows its output in a project-based window with chat, sessions, a file tree, Git status and a terminal. Your `CLAUDE.md` files, skills, MCP servers and slash commands work the same way they do in the terminal.
 
-Differences from upstream:
+Outcrop is a fork of [Clarc](https://github.com/ttnear/Clarc) by ttnear.
 
-1. The approval hook honors the permission rules from Claude Code settings.
-2. Plan usage in the status line is off by default, because it reads Claude Code's sign-in token.
-3. Its own name, bundle identifier and icon.
-4. Its own Application Support folder.
-5. Its own update feed.
+## Differences from Clarc
 
-Releases are not notarized, so the first launch needs System Settings → Privacy & Security → Open Anyway.
-
-The original Clarc README follows.
-
----
-
-# Clarc
-
-**The terminal was for the few. Clarc is for everyone.**
-
-Clarc is a lightweight native macOS desktop client for Claude Code. It brings the CLI agent workflow into a project-centric GUI with streaming chat, repository switching, file browsing, Git status, permissions, terminal access, and per-project notes.
-
-![Platform](https://img.shields.io/badge/platform-macOS%2015.0%2B-blue)
-![Swift](https://img.shields.io/badge/Swift-6.x-orange)
-![Version](https://img.shields.io/badge/version-1.3.3-blue)
-![License](https://img.shields.io/badge/license-Apache%202.0-green)
-
----
-
-## Screenshots
-
-![Clarc Screenshot](docs/screenshot.png)
-
----
-
-## Why Clarc?
-
-The terminal is a wall. For most people who aren't developers, it's a closed door — install a CLI, generate SSH keys, approve every tool call without a real preview of what it's about to do. None of that is hard for engineers; all of it is hard for everyone else. The terminal was for the few, and it still is.
-
-Clarc was built so my non-developer coworkers could use Claude Code without learning a shell first. It doesn't reinvent the agent. It spawns the real `claude` CLI underneath, so your `CLAUDE.md`, skills, MCP servers, and slash commands keep working as-is. What sits on top is a native Mac app:
-
-- Approval modals that surface the actual diff before any tool runs, with risk-aware Allow / Allow Session / Deny options.
-- Per-project windows you can run in parallel — switch tabs, double-click to spin off a window, keep streams alive in the background.
-- Drag-and-drop attachments, smart paste for images, file paths, URLs, and long text.
-- GitHub OAuth that handles SSH key setup for you, so `git clone` just works.
-- An inspector with a file tree, Git status, embedded terminal, and a per-project memo pad.
-
-Same engine, no terminal required.
-
----
-
-## Key Features vs. Claude Desktop
-
-| Clarc feature | Why it matters |
-|---------------|----------------|
-| **Native macOS app** | Built with SwiftUI, not Electron. The current v1.3.3 release is about 6 MB to download and about 14 MB unpacked, without bundling a browser runtime. |
-| **Project-centric workspace** | Register multiple local repositories, switch between them from project tabs, or open a project in its own window for parallel sessions. In-progress streams keep running in the background while you switch. |
-| **Custom slash commands** | Add, edit, disable, import, and export custom slash commands. Built-in commands can be edited locally, while JSON import/export stays custom-only. |
-| **Shortcut buttons** | Create quick buttons for prompts or terminal commands you run repeatedly. Terminal-command shortcuts can launch directly into Clarc's interactive terminal popup. |
-| **Built-in file explorer with Git status** | Browse and search project files, toggle hidden files, preview or edit files, inspect Git status, and switch branches from the sidebar. |
-| **Rich-text memo pad per project** | Keep project-specific notes in the inspector panel with headings, lists, checkboxes, links, and Markdown copy/paste support. |
-| **Embedded terminal** | Use a SwiftTerm-based terminal in the inspector, plus interactive terminal popups for commands such as `/config`, `/permissions`, and `/model`. |
-
----
+1. The approval hook honors the permission rules from Claude Code settings (`~/.claude/settings.json`, `.claude/settings.json` and `.claude/settings.local.json` in the project). A tool call that an allow rule clearly covers, and no deny or ask rule matches, runs without a prompt. Everything else still shows the approval dialog.
+2. Plan usage (the 5-hour and 7-day limits) in the status line is off by default. Showing it reads Claude Code's sign-in token from the Keychain and calls Anthropic's usage API. You can turn it on in Settings → General → Plan usage.
+3. Its own name, bundle identifier (`io.github.killreal1234.outcrop`) and icon.
+4. Its own data folder: `~/Library/Application Support/Outcrop`.
+5. Its own update feed (see [Updates](#updates)).
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Streaming Chat** | Real-time Claude Code conversations with Markdown rendering, tool call visualization, diff views, expandable thinking traces, a visible stop button while streaming, and error bubbles for failed empty responses. |
-| **Conversation Forking** | Hover over any assistant message and fork the conversation from that point into a new branch session, leaving the original untouched. Forked branches also surface in the external `claude --resume` picker. |
-| **Multi-Project Workspace** | Register local folders or GitHub repositories, switch freely, and keep per-project session history. |
-| **Session Management** | Pin, rename, complete, and delete sessions. Treat sessions like a to-do list — tick a checkbox to mark one done (completed titles are struck through and dimmed), hide completed ones, and multi-select for batch pin/complete/delete actions. |
-| **Dedicated Project Windows** | Double-click a project tab to open it in an independent window and work across multiple repositories at once. |
-| **Per-Session Controls** | Choose model, permission mode, and effort level per session from the chat toolbar. Defaults are configurable in Settings. |
-| **Permission Modes** | Ask, Accept Edits, Plan, Auto, and Bypass modes mirror Claude Code's permission model and can be changed from the toolbar. |
-| **Permission Management** | Risk-based approve/deny UI with Allow, Allow Session, Deny, and 5-minute auto-deny handling. |
-| **Effort Levels** | Auto, Low, Medium, High, XHigh, and Max reasoning controls for each session. |
-| **Model Selection** | Claude Code aliases with localized descriptions, including Opus, Sonnet, Haiku, 1M context, and plan variants. |
-| **File Attachments** | Drag-and-drop files and images. Smart paste detects images, file paths, URLs, and long text. |
-| **Attachment Auto-Preview Settings** | Toggle automatic preview chips separately for URLs, file paths, images, and long text. |
-| **Slash Commands** | Built-in and custom command system with built-in command edits/toggles and custom-command JSON import/export. |
-| **Shortcut Buttons** | Configurable quick-access buttons for frequent prompts and terminal commands. |
-| **Message Queue** | Queue messages while Claude is responding; cancel queued items with ESC or the remove button. |
-| **Status Line** | Project path, model, 5-hour and 7-day rate limits, context usage, and response time at a glance. |
-| **Built-in Terminal** | SwiftTerm-powered inspector terminal with reset support, plus full interactive terminal sheets. |
-| **File Explorer** | Project file tree with search, hidden-file toggle, syntax-highlighted preview, file editing, and `@path` insertion. |
-| **Git Status** | Sidebar Git status summary with changed-file counts, branch display, and local/remote branch switching. |
-| **GitHub Integration** | OAuth device flow, Keychain token storage, SSH key management, repository browsing, and cloning. |
-| **Memo Panel** | Per-project rich-text memo pad with headings, lists, checkboxes, links, and persistent storage. |
-| **Skill Marketplace** | Browse and install official Anthropic plugins, refreshed with a 5-minute cache. |
-| **Themes and Font Controls** | Six accent themes plus independent font size controls for the interface and message area. |
-| **Focus Mode** | Optional focused chat layout that can be enabled from Settings. |
-| **Notifications** | Optional system notifications with response previews while Clarc is in the background. |
-| **Localization** | Full UI in English, Korean, Simplified Chinese, Traditional Chinese, Japanese, and Spanish. |
-| **User Guide** | Built-in in-app help guide accessible from the toolbar and Settings. |
-| **Auto-update** | Sparkle-based update checking on launch, with manual checks from the app menu. |
+**Chat**
 
----
+- Streaming responses with Markdown rendering, tool call results, file diffs and expandable thinking blocks. A stop button is shown while a response is streaming.
+- Fork a conversation from any assistant message into a new session; the original session is left as it was.
+- Per-session model, permission mode and effort level, chosen from the chat toolbar. Defaults are set in Settings.
+- Permission modes Ask, Accept Edits, Plan, Auto and Bypass, matching Claude Code's `--permission-mode` values.
+- Effort levels Low, Medium, High, XHigh and Max, plus Auto (the model's default level) and a session-only Ultracode option.
+- Model aliases Opus, Sonnet and Haiku, including the 1M context and Opus Plan variants.
+- Message queue: messages typed while Claude is responding are queued and can be removed before they are sent.
+- Attachments by drag and drop. Paste detects images, file paths, URLs and long text; automatic preview can be turned off for each of these in Settings.
+- Built-in and custom slash commands. Built-in commands can be edited or turned off; custom commands can be imported and exported as JSON. Commands that need an interactive terminal, such as `/config` and `/model`, open in a terminal sheet.
+- Shortcut buttons for prompts or terminal commands you run often.
+- Status line with the project path, model, context usage and total response time. Plan usage limits appear only when the Plan usage setting is on.
+
+**Projects and sessions**
+
+- Several local folders or cloned GitHub repositories, each with its own session history.
+- Project tabs; double-click a tab to open the project in its own window. A response keeps streaming in the background when you switch projects.
+- Sessions can be pinned, renamed, marked as completed and deleted. Completed sessions can be hidden, and several sessions can be selected for one action.
+
+**Inspector and sidebar**
+
+- File tree with search, a hidden-files toggle, syntax-highlighted preview, editing, and insertion of `@path` references into the message.
+- Git status with changed-file counts and the current branch; switch to a local or remote branch from the sidebar.
+- Embedded terminal based on SwiftTerm.
+- A rich-text memo per project, with headings, lists, checkboxes and links.
+
+**Other**
+
+- GitHub sign-in with the OAuth device flow, token storage in the Keychain, SSH key setup, repository list and cloning. Sign-in uses the OAuth app registered by the Clarc author.
+- Plugin marketplace that lists plugins from Anthropic's GitHub repositories, cached for five minutes.
+- Six accent themes and separate font size controls for the interface and the messages.
+- A focus mode for the chat layout, turned on in Settings.
+- System notifications with a preview of the response when a response finishes while the app is in the background. They can be turned off in Settings.
+- Interface in English, Korean, Simplified Chinese, Traditional Chinese, Japanese and Spanish.
+- A user guide, opened from Settings → General.
+- Updates with Sparkle.
 
 ## Requirements
 
-- **macOS 15.0** or later
-- **[Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code)** installed and authenticated
-- **Xcode with Swift 6.2+ toolchain** for building the current source tree
-
----
+- macOS 15.0 or later (the minimum deployment target).
+- The [Claude Code CLI](https://code.claude.com/docs/en/overview), installed and signed in.
+- To build from source: Xcode with a Swift 6.2 or later toolchain.
 
 ## Installation
 
-1. Download the latest `Clarc-x.y.z.zip` from the [Releases](https://github.com/ttnear/Clarc/releases) page.
-2. Unzip and move `Clarc.app` to your `Applications` folder.
-3. Launch `Clarc.app`.
+1. Download `Outcrop-<version>.zip` for the latest version from [Releases](https://github.com/KillReal1234/outcrop/releases).
+2. Unzip it and move `Outcrop.app` to the Applications folder.
+3. Open `Outcrop.app`.
 
-> [!TIP]
-> You can also install via Homebrew with this command:
->
-> `brew install --cask clarc`
+Releases are signed with an Apple Development certificate and are not notarized, so macOS blocks the first launch:
 
-### First Launch on macOS 15 (Sequoia)
+1. Close the dialog that says the app cannot be verified.
+2. Open System Settings → Privacy & Security.
+3. In the Security section, click Open Anyway next to Outcrop, then confirm with your password or Touch ID.
 
-macOS Sequoia blocks the first launch of any downloaded app, even notarized ones, and routes approval through System Settings instead of the old right-click -> Open flow.
+After that, Outcrop opens normally.
 
-When you see **"Apple could not verify 'Clarc.app' is free of malware..."**:
+## Updates
 
-1. Click **Done** on the dialog.
-2. Open **System Settings -> Privacy & Security**.
-3. Scroll to the Security section and click **Open Anyway** next to `Clarc.app`.
-4. Confirm with your password or Touch ID.
+Outcrop checks for updates with [Sparkle](https://sparkle-project.org). The feed is `appcast.xml` on the `fork` branch of this repository, and each update archive is signed with Outcrop's EdDSA key. Sparkle asks whether to check for updates automatically; you can also choose Check for Updates in the app menu.
 
-After this one-time approval, Clarc launches normally. The app is signed with a Developer ID certificate and notarized by Apple. This prompt is standard macOS behavior, not a security warning specific to Clarc.
+## Building from source
 
----
+The Xcode project, scheme and Swift module are still named `Clarc`, and so are the Swift packages `ClarcCore` and `ClarcChatKit` and the source folders. Only the built product is named Outcrop.
 
-## Build from Source
+The project file carries the signing team of the Clarc author, so a local build needs ad-hoc signing overrides. Run the commands from the repository root.
+
+Build:
 
 ```bash
-open Clarc.xcodeproj
+xcodebuild -project Clarc.xcodeproj -scheme Clarc -configuration Debug build \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
 ```
 
-For a CLI build:
+App tests (they launch the app for a moment):
 
 ```bash
-xcodebuild -project Clarc.xcodeproj -scheme Clarc -configuration Debug build
+xcodebuild test -project Clarc.xcodeproj -scheme Clarc -destination 'platform=macOS' \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
 ```
 
-For tests:
+Package tests:
 
 ```bash
-xcodebuild test -project Clarc.xcodeproj -scheme Clarc -destination 'platform=macOS'
 swift test --package-path Packages
 ```
 
-For a signed release ZIP, use the release scripts under `scripts/`.
+Releases are made with `scripts/release_outcrop.sh`:
 
----
+```bash
+OUTCROP_TEAM_ID=<team id> scripts/release_outcrop.sh <version> [--dry-run] [--build N]
+```
 
-## Project Structure
+The script builds and signs the app, signs the archive for Sparkle, adds an entry to `appcast.xml` and commits the version change. It does not publish anything. It needs the Sparkle tools resolved in `../.derived` (build once with `-derivedDataPath ../.derived`) and Outcrop's update signing key in the login keychain. See the comment at the top of the script for details.
+
+## Project structure
 
 | Path | Purpose |
 |------|---------|
-| `Clarc/` | macOS app target: app entry point, views, services, resources, and integrations. |
-| `Packages/Sources/ClarcCore/` | Shared models, theme, utilities, Git helpers, and pure core logic. |
-| `Packages/Sources/ClarcChatKit/` | Reusable chat UI, message rendering, input bar, slash commands, shortcuts, diffs, and status line. |
-| `ClarcTests/` | App-level XCTest coverage. |
-| `Packages/Tests/` | Swift Testing coverage for core utilities. |
-| `release_notes/` | Human-readable release notes used for publishing. |
-| `scripts/` | Build, notarization, Sparkle signing, and release automation. |
+| `Clarc/` | macOS app target: app entry point, views, services, resources. |
+| `Packages/Sources/ClarcCore/` | Shared models, theme, utilities, Git helpers and Claude Code session storage. |
+| `Packages/Sources/ClarcChatKit/` | Chat interface: messages, input bar, slash commands, shortcuts, diffs, status line. |
+| `ClarcTests/` | App tests (XCTest). |
+| `Packages/Tests/` | Package tests (Swift Testing). |
+| `appcast.xml` | Outcrop's Sparkle update feed. |
+| `scripts/release_outcrop.sh` | Outcrop's release script. The other scripts in `scripts/` are Clarc's own release tooling. |
+| `release_notes/` | Release notes of Clarc versions. |
 
----
+## License and credits
 
-## License
+Outcrop is based on [Clarc](https://github.com/ttnear/Clarc) by ttnear and keeps its license, Apache License 2.0. See [LICENSE](LICENSE).
 
-Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+It uses [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) for the terminal and [Sparkle](https://github.com/sparkle-project/Sparkle) for updates.
