@@ -37,6 +37,9 @@
 "Plan usage" = "Uso del plan";
 "Show plan usage in the status line" = "Mostrar el uso del plan en la barra de estado";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "Lee el token de inicio de sesión de Claude Code del llavero y solicita directamente a Anthropic tu uso de 5 horas y de 7 días.";
+"Chrome" = "Chrome";
+"Let Claude use Chrome" = "Permitir que Claude use Chrome";
+"Starts Claude Code with Claude in Chrome. Claude can open pages, click and type in your Chrome without asking. Requires Chrome with the Claude extension, signed in to the same account." = "Inicia Claude Code con Claude in Chrome. Claude puede abrir páginas, hacer clic y escribir en tu Chrome sin preguntar. Requiere Chrome con la extensión de Claude y la sesión iniciada con la misma cuenta.";
 "Open Source" = "Código abierto";
 "Response complete" = "Respuesta completada";
 

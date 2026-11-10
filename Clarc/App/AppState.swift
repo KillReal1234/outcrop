@@ -240,6 +240,15 @@ final class AppState {
         didSet { UserDefaults.standard.set(planUsageEnabled, forKey: "planUsageEnabled") }
     }
 
+    // MARK: - Chrome Control
+
+    /// Off by default: when on, Claude Code is launched with `--chrome` and its Chrome tools
+    /// run without approval prompts (except in plan mode). `PermissionServer` reads the same
+    /// UserDefaults key. Takes effect from the next message, since each message spawns a new CLI.
+    var chromeControlEnabled: Bool = (UserDefaults.standard.object(forKey: ChromeControl.settingKey) as? Bool) ?? false {
+        didSet { UserDefaults.standard.set(chromeControlEnabled, forKey: ChromeControl.settingKey) }
+    }
+
     // MARK: - Focus Mode
 
     var focusMode: Bool = (UserDefaults.standard.object(forKey: "focusMode") as? Bool) ?? false {
@@ -1167,7 +1176,8 @@ final class AppState {
             model: model,
             effort: effort,
             hookSettingsPath: hookSettingsPath,
-            permissionMode: permissionMode
+            permissionMode: permissionMode,
+            chromeEnabled: chromeControlEnabled
         )
 
         startFlushTimer(for: sessionKey)

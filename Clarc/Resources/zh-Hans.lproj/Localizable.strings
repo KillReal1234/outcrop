@@ -37,6 +37,9 @@
 "Plan usage" = "套餐用量";
 "Show plan usage in the status line" = "在状态栏显示套餐用量";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "从钥匙串读取 Claude Code 登录令牌，并直接向 Anthropic 请求 5 小时和 7 天用量。";
+"Chrome" = "Chrome";
+"Let Claude use Chrome" = "允许 Claude 使用 Chrome";
+"Starts Claude Code with Claude in Chrome. Claude can open pages, click and type in your Chrome without asking. Requires Chrome with the Claude extension, signed in to the same account." = "以 Claude in Chrome 启动 Claude Code。Claude 可以在你的 Chrome 中打开网页、点击和输入，无需询问。需要安装了 Claude 扩展并登录同一账号的 Chrome。";
 "Open Source" = "开源";
 "Response complete" = "响应完成";
 

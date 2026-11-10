@@ -37,6 +37,9 @@
 "Plan usage" = "Plan usage";
 "Show plan usage in the status line" = "Show plan usage in the status line";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly.";
+"Chrome" = "Chrome";
+"Let Claude use Chrome" = "Let Claude use Chrome";
+"Starts Claude Code with Claude in Chrome. Claude can open pages, click and type in your Chrome without asking. Requires Chrome with the Claude extension, signed in to the same account." = "Starts Claude Code with Claude in Chrome. Claude can open pages, click and type in your Chrome without asking. Requires Chrome with the Claude extension, signed in to the same account.";
 "Open Source" = "Open Source";
 "Response complete" = "Response complete";
 

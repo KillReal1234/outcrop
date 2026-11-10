@@ -227,6 +227,14 @@ actor PermissionServer {
         // "Answer questions?" error result.
         if req.toolName == "AskUserQuestion" { return nil }
 
+        // "Let Claude use Chrome" in Settings: Claude in Chrome tools run without a prompt,
+        // except in plan mode. A session with no registered mode is treated as default.
+        let chromeEnabled = UserDefaults.standard.bool(forKey: ChromeControl.settingKey)
+        let chromeMode = req.sessionId.flatMap { sessionRegistry[$0]?.mode } ?? .default
+        if ChromeControl.autoApproves(toolName: req.toolName, enabled: chromeEnabled, mode: chromeMode) {
+            return "Chrome tools allowed in Settings"
+        }
+
         if let sid = req.sessionId,
            sessionToolAllows.contains(Self.sessionToolKey(sid: sid, tool: req.toolName)) {
             return "Tool allowed for session by user"
