@@ -5,10 +5,11 @@ import ClarcCore
 /// View that displays the project folder structure as a tree.
 struct FileTreeView: View {
     let projectPath: String
-    @Binding var searchTrigger: Bool
     @Environment(AppState.self) private var appState
     @Environment(WindowState.self) private var windowState
     @State private var rootNode: FileNode?
+    /// True when the last scan finished without a tree (the project folder is missing or not a folder).
+    @State private var scanFailed = false
     @State private var isSearching = false
     @State private var searchText = ""
     @State private var showHiddenFiles = false
@@ -139,7 +140,7 @@ struct FileTreeView: View {
 
                             ForEach(results) { file in
                                 SearchResultRow(node: file, searchText: searchText, onFileSelect: { node in
-                                    windowState.inspectorFile = PreviewFile(path: node.id, name: node.name)
+                                    windowState.openFilePreview(PreviewFile(path: node.id, name: node.name))
                                 }, onAddPath: { node in
                                     addPathToInput(node)
                                 })
@@ -150,13 +151,25 @@ struct FileTreeView: View {
                     treeScrollView {
                         ForEach(root.children) { child in
                             FileNodeRow(node: child, depth: 0, onFileSelect: { node in
-                                windowState.inspectorFile = PreviewFile(path: node.id, name: node.name)
+                                windowState.openFilePreview(PreviewFile(path: node.id, name: node.name))
                             }, onAddPath: { node in
                                 addPathToInput(node)
                             })
                         }
                     }
                 }
+            } else if scanFailed {
+                VStack(spacing: 8) {
+                    Spacer()
+                    Image(systemName: "folder.badge.questionmark")
+                        .font(.system(size: ClaudeTheme.size(24)))
+                        .foregroundStyle(ClaudeTheme.textTertiary)
+                    Text("Folder not available")
+                        .font(.system(size: ClaudeTheme.size(12)))
+                        .foregroundStyle(ClaudeTheme.textTertiary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
             } else {
                 // First load only — subsequent project switches keep the previous tree visible
                 // until the new scan completes (no flash).
@@ -175,6 +188,7 @@ struct FileTreeView: View {
         // Single .task replaces onAppear + multiple onChange reload calls.
         // SwiftUI auto-cancels the previous scan when the key changes.
         .task(id: TreeScanKey(path: projectPath, hidden: showHiddenFiles, tick: refreshTick)) {
+            scanFailed = false
             let path = projectPath
             let hidden = showHiddenFiles
             let node = await Task.detached(priority: .userInitiated) {
@@ -182,16 +196,23 @@ struct FileTreeView: View {
             }.value
             guard !Task.isCancelled else { return }
             rootNode = node
+            scanFailed = node == nil
         }
         .onChange(of: appState.isStreaming(in: windowState)) { old, new in
             if old && !new { refreshTick &+= 1 }
         }
-        .onChange(of: searchTrigger) {
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isSearching = true
-                isSearchFieldFocused = true
-            }
+        // The tree is created lazily, so a request made before it existed is served on appear.
+        .onAppear { serveFileSearchRequest() }
+        .onChange(of: windowState.fileSearchTrigger) { serveFileSearchRequest() }
+    }
+
+    private func serveFileSearchRequest() {
+        guard windowState.takeFileSearchRequest() else { return }
+        withAnimation(.easeInOut(duration: 0.15)) {
+            isSearching = true
         }
+        // The search field is inserted by this update; focus it once it exists.
+        DispatchQueue.main.async { isSearchFieldFocused = true }
     }
 
     private func addPathToInput(_ node: FileNode) {
@@ -482,6 +503,6 @@ struct FileNode: Identifiable, Sendable {
 }
 
 #Preview {
-    FileTreeView(projectPath: "/Users/jmlee/workspace/Clarc", searchTrigger: .constant(false))
+    FileTreeView(projectPath: "/Users/jmlee/workspace/Clarc")
         .frame(width: 280, height: 400)
 }

@@ -281,7 +281,7 @@ struct ToolResultView: View {
                     .font(.system(size: ClaudeTheme.messageSize(12)))
                     .foregroundStyle(ClaudeTheme.textSecondary)
                 fileActionLink(label: fileName, color: ClaudeTheme.accent) {
-                    windowState.inspectorFile = PreviewFile(path: filePath, name: fileName)
+                    windowState.openFilePreview(PreviewFile(path: filePath, name: fileName))
                 }
                 if isEditTool, toolCall.result != nil {
                     let hunks = editHunksFromToolInput()

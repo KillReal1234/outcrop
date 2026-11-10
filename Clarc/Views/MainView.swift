@@ -9,25 +9,11 @@ struct MainView: View {
     @State private var showGitHubSheet = false
     @State private var showFilePicker = false
     @Environment(\.openSettings) private var openSettings
-    @State private var sidebarTab: SidebarTab = .history
-    @State private var fileSearchTrigger = false
     @State private var inspectorStarted = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var projectToDelete: Project? = nil
     @State private var projectToRename: Project? = nil
     @State private var renameText: String = ""
-
-    enum SidebarTab: String, CaseIterable {
-        case history = "History"
-        case files = "Files"
-
-        var icon: String {
-            switch self {
-            case .files: "folder"
-            case .history: "clock"
-            }
-        }
-    }
 
     var body: some View {
         if !appState.onboardingCompleted {
@@ -57,6 +43,9 @@ struct MainView: View {
                     }
                     .keyboardShortcut("3", modifiers: .command)
                     .hidden()
+
+                    WindowPaneShortcuts(columnVisibility: $columnVisibility)
+                    InspectorCommandsPublisher()
                 }
                 .overlay {
                     if windowState.showMarketplace {
@@ -135,24 +124,7 @@ struct MainView: View {
 
     private var sidebarContent: some View {
         VStack(spacing: 0) {
-            if windowState.selectedProject != nil {
-                ClaudeSegmentedControl(selection: $sidebarTab)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-
-                switch sidebarTab {
-                case .files:
-                    FileTreeView(projectPath: windowState.selectedProject!.path, searchTrigger: $fileSearchTrigger)
-                case .history:
-                    HistoryListView()
-                }
-            } else {
-                HistoryListView()
-            }
-
-            if windowState.selectedProject != nil {
-                SidebarTabShortcuts(sidebarTab: $sidebarTab, fileSearchTrigger: $fileSearchTrigger, columnVisibility: $columnVisibility)
-            }
+            HistoryListView()
 
             ClaudeThemeDivider()
 
@@ -239,10 +211,15 @@ struct MainView: View {
         if appState.inspectorPosition == .bottom {
             VStack(spacing: 0) {
                 chatCore
-                if inspectorStarted, windowState.showInspector {
-                    BottomInspectorDivider(height: $bottomInspectorHeight)
+                // Once started, the panel stays in the hierarchy and collapses to zero height when
+                // hidden (like the right dock), so the terminal and unsaved file edits survive.
+                if inspectorStarted {
+                    if windowState.showInspector {
+                        BottomInspectorDivider(height: $bottomInspectorHeight)
+                    }
+                    let panelHeight = windowState.showInspector ? CGFloat(bottomInspectorHeight) : 0
                     InspectorPanel(position: .bottom)
-                        .frame(maxWidth: .infinity, minHeight: CGFloat(bottomInspectorHeight), maxHeight: CGFloat(bottomInspectorHeight))
+                        .frame(maxWidth: .infinity, minHeight: panelHeight, maxHeight: panelHeight)
                 }
             }
         } else {
@@ -276,11 +253,6 @@ struct MainView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(ClaudeTheme.background)
             }
-        }
-        .sheet(item: Bindable(windowState).inspectorFile) { file in
-            FileInspectorView(filePath: file.path, fileName: file.name)
-                .frame(minWidth: 1000, idealWidth: 1400, maxWidth: 1920,
-                       minHeight: 600, idealHeight: 1000, maxHeight: 1200)
         }
         .sheet(item: Bindable(windowState).diffFile) { file in
             FileDiffView(filePath: file.path, fileName: file.name, editHunks: file.editHunks)
@@ -333,7 +305,6 @@ struct DetailToolbar: View {
                         Image(systemName: appState.inspectorPosition == .bottom ? "inset.filled.bottomthird.rectangle" : "sidebar.trailing")
                     }
                     .help("Toggle Inspector")
-                    .keyboardShortcut("4", modifiers: .command)
 
                     Button {
                         openSettings()
@@ -441,12 +412,13 @@ struct InspectorPanel: View {
     @State private var memoClearID: UUID? = nil
     @State private var terminalFocusID: UUID? = nil
     @State private var memoFocusID: UUID? = nil
-
-    private var showBoth: Bool { appState.inspectorShowBoth }
+    /// The file tree is created the first time the Files tab is shown, so a closed panel does not scan the project.
+    @State private var filesStarted = false
 
     private func bumpFocus(for tab: InspectorTab) {
         switch tab {
         case .terminal: terminalFocusID = UUID()
+        case .files: break
         case .memo: memoFocusID = UUID()
         }
     }
@@ -463,66 +435,107 @@ struct InspectorPanel: View {
             .background(ClaudeTheme.surfaceElevated)
             .modifier(InspectorPositionModifier(position: position, visible: windowState.showInspector))
             .onChange(of: windowState.inspectorTab) { _, newTab in
-                if !showBoth { bumpFocus(for: newTab) }
+                bumpFocus(for: newTab)
+            }
+            .onChange(of: windowState.inspectorTab, initial: true) { _, tab in
+                if tab == .files { filesStarted = true }
             }
             .onChange(of: windowState.showInspector) { _, isShowing in
                 guard isShowing else { return }
-                if showBoth {
-                    bumpFocus(for: .memo)
-                } else {
-                    bumpFocus(for: windowState.inspectorTab)
-                }
+                bumpFocus(for: windowState.inspectorTab)
             }
     }
 
     // MARK: - Content
 
-    @ViewBuilder
+    // All tabs stay in a ZStack and are toggled by opacity, so the terminal process
+    // stays alive and the file tree is not rescanned when the user switches tabs.
     private var content: some View {
-        if showBoth {
-            Group {
-                if position == .bottom {
-                    // Bottom dock: memo on the left, terminal on the right, draggable divider.
-                    HSplitView {
-                        memoView
-                            .frame(minWidth: 160, idealWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
-                        terminalView
-                            .frame(minWidth: 160, idealWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
-                            .background(ClaudeTheme.codeBackground)
-                    }
-                } else {
-                    // Right dock: memo on top, terminal on the bottom, draggable divider.
-                    VSplitView {
-                        memoView.frame(maxWidth: .infinity, minHeight: 100, idealHeight: 300, maxHeight: .infinity)
-                        terminalView
-                            .frame(maxWidth: .infinity, minHeight: 100, idealHeight: 300, maxHeight: .infinity)
-                            .background(ClaudeTheme.codeBackground)
-                    }
-                }
+        VStack(spacing: 0) {
+            HStack(spacing: 4) {
+                InspectorTabControl(
+                    selection: Bindable(windowState).inspectorTab,
+                    onTabClick: { tab in bumpFocus(for: tab) }
+                )
+                Spacer()
             }
-        } else {
-            // Single-tab mode: overlay both, toggle with opacity so the terminal process stays alive.
-            VStack(spacing: 0) {
-                HStack(spacing: 4) {
-                    InspectorTabControl(
-                        selection: Bindable(windowState).inspectorTab,
-                        onTabClick: { tab in bumpFocus(for: tab) }
-                    )
-                    Spacer()
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                ZStack {
-                    terminalView
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(ClaudeTheme.codeBackground)
-                        .opacity(windowState.inspectorTab == .terminal ? 1 : 0)
-                    memoView
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .opacity(windowState.inspectorTab == .memo ? 1 : 0)
-                }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            ZStack {
+                terminalView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(ClaudeTheme.codeBackground)
+                    .tabVisibility(windowState.inspectorTab == .terminal)
+                filesView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .tabVisibility(windowState.inspectorTab == .files)
+                memoView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .tabVisibility(windowState.inspectorTab == .memo)
             }
         }
+    }
+
+    // MARK: - Files Tab
+
+    /// Tree on top and preview below (right dock), or tree left and preview right (bottom dock).
+    @ViewBuilder
+    private var filesView: some View {
+        Group {
+            if let project = windowState.selectedProject {
+                if position == .bottom {
+                    HSplitView {
+                        fileTree(projectPath: project.path)
+                            .frame(minWidth: 160, idealWidth: 280, maxWidth: .infinity, maxHeight: .infinity)
+                        if let file = windowState.inspectorFile {
+                            filePreview(file)
+                                .frame(minWidth: 240, idealWidth: 600, maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                } else {
+                    VSplitView {
+                        fileTree(projectPath: project.path)
+                            .frame(maxWidth: .infinity, minHeight: 120, idealHeight: 260, maxHeight: .infinity)
+                        if let file = windowState.inspectorFile {
+                            filePreview(file)
+                                .frame(maxWidth: .infinity, minHeight: 160, idealHeight: 420, maxHeight: .infinity)
+                        }
+                    }
+                }
+            } else {
+                noProjectView
+            }
+        }
+        .background(ClaudeTheme.sidebarBackground)
+        // Lives in the tab container, not in the lazily created tree, so it is always observed.
+        .onChange(of: windowState.selectedProject?.id) {
+            windowState.closeFilePreviewIfClean()
+        }
+    }
+
+    @ViewBuilder
+    private func fileTree(projectPath: String) -> some View {
+        if filesStarted {
+            FileTreeView(projectPath: projectPath)
+        } else {
+            Color.clear
+        }
+    }
+
+    private func filePreview(_ file: PreviewFile) -> some View {
+        FileInspectorView(fileID: file.id, filePath: file.path, fileName: file.name)
+    }
+
+    private var noProjectView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "folder")
+                .font(.system(size: ClaudeTheme.size(24)))
+                .foregroundStyle(ClaudeTheme.textTertiary)
+            Text("No project selected")
+                .font(.system(size: ClaudeTheme.size(13)))
+                .foregroundStyle(ClaudeTheme.textSecondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
@@ -559,7 +572,16 @@ struct InspectorPanel: View {
     }
 }
 
-/// Right dock: collapses width when hidden. Bottom dock: fills available width (height managed externally).
+private extension View {
+    /// Hides an inspector tab without removing it from the hierarchy.
+    func tabVisibility(_ visible: Bool) -> some View {
+        opacity(visible ? 1 : 0)
+            .allowsHitTesting(visible)
+    }
+}
+
+/// Right dock: collapses width when hidden. Bottom dock: fills available width; height managed externally,
+/// collapsed to zero while hidden.
 private struct InspectorPositionModifier: ViewModifier {
     let position: InspectorPosition
     let visible: Bool
@@ -572,7 +594,12 @@ private struct InspectorPositionModifier: ViewModifier {
                     .opacity(visible ? 1 : 0)
                     .clipped()
             } else {
-                content.frame(maxWidth: .infinity)
+                // Height is set by the chat column (zero while hidden).
+                content
+                    .frame(maxWidth: .infinity)
+                    .opacity(visible ? 1 : 0)
+                    .clipped()
+                    .allowsHitTesting(visible)
             }
         }
     }
@@ -620,45 +647,11 @@ private struct InspectorIconButton: View {
     }
 }
 
-// MARK: - Claude Segmented Control
+// MARK: - Window Pane Shortcuts
 
-struct ClaudeSegmentedControl: View {
-    @Binding var selection: MainView.SidebarTab
-
-    var body: some View {
-        HStack(spacing: 2) {
-            ForEach(MainView.SidebarTab.allCases, id: \.self) { tab in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) { selection = tab }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: ClaudeTheme.size(10), weight: .medium))
-                        Text(LocalizedStringKey(tab.rawValue))
-                            .font(.system(size: ClaudeTheme.size(12), weight: .medium))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 5)
-                    .contentShape(Rectangle())
-                    .foregroundStyle(selection == tab ? ClaudeTheme.textOnAccent : ClaudeTheme.textSecondary)
-                    .background(
-                        selection == tab ? ClaudeTheme.accent : Color.clear,
-                        in: RoundedRectangle(cornerRadius: 6)
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(2)
-        .background(ClaudeTheme.surfaceSecondary, in: RoundedRectangle(cornerRadius: ClaudeTheme.cornerRadiusSmall))
-    }
-}
-
-// MARK: - Sidebar Tab Shortcuts
-
-struct SidebarTabShortcuts: View {
-    @Binding var sidebarTab: MainView.SidebarTab
-    @Binding var fileSearchTrigger: Bool
+/// Hidden buttons for the sidebar and inspector shortcuts. ⌘2 and ⌘4 are menu commands (View menu).
+struct WindowPaneShortcuts: View {
+    @Environment(WindowState.self) private var windowState
     @Binding var columnVisibility: NavigationSplitViewVisibility
 
     var body: some View {
@@ -666,26 +659,36 @@ struct SidebarTabShortcuts: View {
             .frame(width: 0, height: 0)
             .background {
                 Button("") {
-                    withAnimation(.easeInOut(duration: 0.15)) { sidebarTab = .files }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { fileSearchTrigger.toggle() }
+                    windowState.requestFileSearch()
                 }
                 .keyboardShortcut("f", modifiers: .command)
                 .hidden()
 
                 Button("") {
                     columnVisibility = .all
-                    withAnimation(.easeInOut(duration: 0.15)) { sidebarTab = .history }
                 }
                 .keyboardShortcut("1", modifiers: .command)
                 .hidden()
-
-                Button("") {
-                    columnVisibility = .all
-                    withAnimation(.easeInOut(duration: 0.15)) { sidebarTab = .files }
-                }
-                .keyboardShortcut("2", modifiers: .command)
-                .hidden()
             }
+    }
+}
+
+// MARK: - Inspector Commands Publisher
+
+/// Publishes this window's inspector actions to the View menu. Isolated so that
+/// toggling the inspector does not re-evaluate the enclosing view.
+struct InspectorCommandsPublisher: View {
+    @Environment(WindowState.self) private var windowState
+
+    var body: some View {
+        let windowState = windowState
+        Color.clear
+            .frame(width: 0, height: 0)
+            .focusedSceneValue(\.inspectorCommands, InspectorCommands(
+                isInspectorShown: windowState.showInspector,
+                toggleInspector: { windowState.showInspector.toggle() },
+                showFiles: { windowState.showInspectorTab(.files) }
+            ))
     }
 }
 

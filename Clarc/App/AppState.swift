@@ -253,11 +253,6 @@ final class AppState {
         didSet { UserDefaults.standard.set(inspectorPosition.rawValue, forKey: "inspectorPosition") }
     }
 
-    /// When true, memo and terminal are shown together (split) instead of one tab at a time.
-    var inspectorShowBoth: Bool = (UserDefaults.standard.object(forKey: "inspectorShowBoth") as? Bool) ?? false {
-        didSet { UserDefaults.standard.set(inspectorShowBoth, forKey: "inspectorShowBoth") }
-    }
-
     // MARK: - Attachment Auto-Preview Settings
 
     private static let autoPreviewSettingsKey = "attachmentAutoPreviewSettings"

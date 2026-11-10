@@ -8,10 +8,26 @@ private struct StartNewChatKey: FocusedValueKey {
     typealias Value = () -> Void
 }
 
+/// The active window's inspector state and actions, for the View menu.
+struct InspectorCommands {
+    let isInspectorShown: Bool
+    let toggleInspector: () -> Void
+    let showFiles: () -> Void
+}
+
+private struct InspectorCommandsKey: FocusedValueKey {
+    typealias Value = InspectorCommands
+}
+
 extension FocusedValues {
     var startNewChat: (() -> Void)? {
         get { self[StartNewChatKey.self] }
         set { self[StartNewChatKey.self] = newValue }
+    }
+
+    var inspectorCommands: InspectorCommands? {
+        get { self[InspectorCommandsKey.self] }
+        set { self[InspectorCommandsKey.self] = newValue }
     }
 }
 
@@ -28,6 +44,7 @@ struct ProjectWindowValue: Codable, Hashable {
 struct ClarcApp: App {
     @State private var appState = AppState()
     @FocusedValue(\.startNewChat) private var startNewChat
+    @FocusedValue(\.inspectorCommands) private var inspectorCommands
     private let updateService = UpdateService.shared
 
     var body: some Scene {
@@ -43,6 +60,25 @@ struct ClarcApp: App {
                     startNewChat?()
                 }
                 .keyboardShortcut("n", modifiers: .command)
+            }
+            CommandGroup(after: .sidebar) {
+                Button {
+                    inspectorCommands?.toggleInspector()
+                } label: {
+                    if inspectorCommands?.isInspectorShown == true {
+                        Text("Hide Inspector")
+                    } else {
+                        Text("Show Inspector")
+                    }
+                }
+                .keyboardShortcut("4", modifiers: .command)
+                .disabled(inspectorCommands == nil)
+
+                Button("Files") {
+                    inspectorCommands?.showFiles()
+                }
+                .keyboardShortcut("2", modifiers: .command)
+                .disabled(inspectorCommands == nil)
             }
             CommandGroup(after: .appInfo) {
                 Button("Check for Updates...") {

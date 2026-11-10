@@ -2,8 +2,10 @@ import SwiftUI
 import AppKit
 import ClarcCore
 
-/// Inspector panel for file preview with syntax highlighting
+/// File preview with syntax highlighting, shown in the inspector's Files tab.
 struct FileInspectorView: View {
+    /// Identity of the open request; a new request for the same path reloads the file.
+    let fileID: UUID
     let filePath: String
     let fileName: String
     @State private var content: String?
@@ -21,6 +23,19 @@ struct FileInspectorView: View {
 
     private var isDirty: Bool {
         isEditing && editingContent != (content ?? "")
+    }
+
+    /// The panel's shortcuts act on the whole window, so Esc is only taken while the
+    /// preview is on screen and being edited; otherwise it stays with the chat.
+    private var handlesEscape: Bool {
+        isEditing && windowState.showInspector && windowState.inspectorTab == .files
+    }
+
+    private var isShowingSavePrompt: Binding<Bool> {
+        Binding(
+            get: { windowState.pendingFilePreview != nil },
+            set: { if !$0 { windowState.cancelPendingFilePreview() } }
+        )
     }
 
     var body: some View {
@@ -51,24 +66,48 @@ struct FileInspectorView: View {
                 .disabled(!isDirty || isSaving)
                 .opacity(0)
                 .allowsHitTesting(false)
-            // ESC: Cancel editing if in edit mode, otherwise close the inspector
+            // ESC: Cancel editing. Disabled otherwise so Esc reaches the chat (stops a response).
             Button("") {
-                if isEditing {
-                    isEditing = false
-                    editingContent = content ?? ""
-                } else {
-                    windowState.inspectorFile = nil
-                }
+                isEditing = false
+                editingContent = content ?? ""
             }
             .keyboardShortcut(.escape, modifiers: [])
+            .disabled(!handlesEscape)
             .opacity(0)
             .allowsHitTesting(false)
         }
-        .task(id: filePath) {
+        .task(id: fileID) {
             isEditing = false
             editingContent = ""
             saveError = nil
             await loadFile()
+        }
+        .onChange(of: isDirty, initial: true) { _, dirty in
+            windowState.filePreviewIsDirty = dirty
+        }
+        .onDisappear {
+            windowState.filePreviewIsDirty = false
+        }
+        .confirmationDialog(
+            "Save changes to “\(fileName)”?",
+            isPresented: isShowingSavePrompt,
+            titleVisibility: .visible
+        ) {
+            Button("Save") {
+                // Closing the dialog clears the pending intent, so keep it for after the save.
+                guard let intent = windowState.pendingFilePreview else { return }
+                Task {
+                    if await saveFile() {
+                        windowState.performFilePreviewIntent(intent)
+                    }
+                }
+            }
+            Button("Discard", role: .destructive) {
+                windowState.resolvePendingFilePreview()
+            }
+            Button("Cancel", role: .cancel) {
+                windowState.cancelPendingFilePreview()
+            }
         }
     }
 
@@ -124,7 +163,7 @@ struct FileInspectorView: View {
                 .help(isCopied ? "Copied" : "Copy")
             }
 
-            Button { windowState.inspectorFile = nil } label: {
+            Button { windowState.closeFilePreview() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: ClaudeTheme.size(11), weight: .medium))
                     .foregroundStyle(ClaudeTheme.textSecondary)
@@ -133,6 +172,7 @@ struct FileInspectorView: View {
             }
             .buttonStyle(.borderless)
             .focusable(false)
+            .help("Close Preview")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -206,7 +246,9 @@ struct FileInspectorView: View {
 
     // MARK: - File Saving
 
-    private func saveFile() async {
+    /// Returns true when the file was written; on failure the error is shown in the editor.
+    @discardableResult
+    private func saveFile() async -> Bool {
         isSaving = true
         saveError = nil
         let textToSave = editingContent
@@ -221,8 +263,11 @@ struct FileInspectorView: View {
             isEditing = false
         } catch {
             saveError = "Save failed: \(error.localizedDescription)"
+            isSaving = false
+            return false
         }
         isSaving = false
+        return true
     }
 
     // MARK: - File Loading

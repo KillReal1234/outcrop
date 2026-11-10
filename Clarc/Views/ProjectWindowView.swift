@@ -6,8 +6,6 @@ import ClarcChatKit
 struct ProjectWindowView: View {
     @Environment(AppState.self) private var appState
     @Environment(WindowState.self) private var windowState
-    @State private var sidebarTab: MainView.SidebarTab = .history
-    @State private var fileSearchTrigger = false
     @State private var inspectorStarted = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
@@ -30,11 +28,6 @@ struct ProjectWindowView: View {
         }
         .onAppear {
             windowState.isProjectWindow = true
-        }
-        .sheet(item: Bindable(windowState).inspectorFile) { file in
-            FileInspectorView(filePath: file.path, fileName: file.name)
-                .frame(minWidth: 1000, idealWidth: 1400, maxWidth: 1920,
-                       minHeight: 600, idealHeight: 1000, maxHeight: 1200)
         }
         .sheet(item: Bindable(windowState).diffFile) { file in
             FileDiffView(filePath: file.path, fileName: file.name, editHunks: file.editHunks)
@@ -62,6 +55,9 @@ struct ProjectWindowView: View {
             }
             .keyboardShortcut("3", modifiers: .command)
             .hidden()
+
+            WindowPaneShortcuts(columnVisibility: $columnVisibility)
+            InspectorCommandsPublisher()
         }
         .id(appState.themeRevision)
         .navigationTitle(windowState.selectedProject?.name ?? "Project")
@@ -80,23 +76,7 @@ struct ProjectWindowView: View {
 
     private var sidebarContent: some View {
         VStack(spacing: 0) {
-            // Sidebar tabs (History/Files)
-            ClaudeSegmentedControl(selection: $sidebarTab)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-
-            ClaudeThemeDivider()
-
-            switch sidebarTab {
-            case .files:
-                if let project = windowState.selectedProject {
-                    FileTreeView(projectPath: project.path, searchTrigger: $fileSearchTrigger)
-                }
-            case .history:
-                HistoryListView()
-            }
-
-            SidebarTabShortcuts(sidebarTab: $sidebarTab, fileSearchTrigger: $fileSearchTrigger, columnVisibility: $columnVisibility)
+            HistoryListView()
 
             ClaudeThemeDivider()
 
@@ -153,10 +133,15 @@ struct ProjectWindowView: View {
         if appState.inspectorPosition == .bottom {
             VStack(spacing: 0) {
                 chatCore
-                if inspectorStarted, windowState.showInspector {
-                    BottomInspectorDivider(height: $bottomInspectorHeight)
+                // Once started, the panel stays in the hierarchy and collapses to zero height when
+                // hidden (like the right dock), so the terminal and unsaved file edits survive.
+                if inspectorStarted {
+                    if windowState.showInspector {
+                        BottomInspectorDivider(height: $bottomInspectorHeight)
+                    }
+                    let panelHeight = windowState.showInspector ? CGFloat(bottomInspectorHeight) : 0
                     InspectorPanel(position: .bottom)
-                        .frame(maxWidth: .infinity, minHeight: CGFloat(bottomInspectorHeight), maxHeight: CGFloat(bottomInspectorHeight))
+                        .frame(maxWidth: .infinity, minHeight: panelHeight, maxHeight: panelHeight)
                 }
             }
         } else {
@@ -190,7 +175,6 @@ struct ProjectWindowView: View {
                     Image(systemName: appState.inspectorPosition == .bottom ? "inset.filled.bottomthird.rectangle" : "sidebar.trailing")
                 }
                 .help("Toggle Inspector")
-                .keyboardShortcut("4", modifiers: .command)
             }
         }
         .focusedValue(\.startNewChat) {
