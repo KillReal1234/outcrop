@@ -585,8 +585,9 @@ final class AppState {
         dismissedProjectPaths = await persistence.loadDismissedProjectPaths()
         // Without a stored value every project already in the list is open,
         // so the tab strip keeps its tabs after updating to this version.
+        // Under tests the open set lives in memory only (see `saveOpenProjects`).
         openProjects = OpenProjects(
-            storedValue: UserDefaults.standard.stringArray(forKey: OpenProjects.defaultsKey),
+            storedValue: Self.isRunningUnderTests ? nil : UserDefaults.standard.stringArray(forKey: OpenProjects.defaultsKey),
             existing: projects.map(\.id)
         )
         saveOpenProjects()
@@ -2054,11 +2055,16 @@ final class AppState {
         }
     }
 
+    /// No-op under tests: app tests select fake projects, and a stored list of
+    /// their ids would leave the user's real tab strip empty on next launch.
     private func saveOpenProjects() {
+        guard !Self.isRunningUnderTests else { return }
         UserDefaults.standard.set(openProjects.storedValue, forKey: OpenProjects.defaultsKey)
     }
 
+    /// No-op under tests, which run against the real data folder.
     private func saveDismissedProjectPaths() {
+        guard !Self.isRunningUnderTests else { return }
         let paths = dismissedProjectPaths
         Task {
             do { try await persistence.saveDismissedProjectPaths(paths) }
