@@ -33,7 +33,7 @@
 "font.size.hint" = "Adjust interface and message font sizes independently.";
 "Notifications" = "Notifications";
 "Notify when response completes" = "Notify when response completes";
-"Sends a system notification while Clarc is in the background." = "Sends a system notification while Clarc is in the background.";
+"Sends a system notification while Clarc is in the background." = "Sends a system notification while Outcrop is in the background.";
 "Plan usage" = "Plan usage";
 "Show plan usage in the status line" = "Show plan usage in the status line";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly.";
@@ -110,7 +110,7 @@
 "Projects" = "Projects";
 "Rename Project" = "Rename Project";
 "Delete Project" = "Delete Project";
-"This will remove the project from Clarc. The files on disk will not be deleted." = "This will remove the project from Clarc. The files on disk will not be deleted.";
+"This will remove the project from Clarc. The files on disk will not be deleted." = "This will remove the project from Outcrop. The files on disk will not be deleted.";
 "Project name" = "Project name";
 
 // MARK: - HistoryListView
@@ -193,7 +193,7 @@
 "Install command:" = "Install command:";
 "Check Again" = "Check Again";
 "Get Started" = "Get Started";
-"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings.";
+"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Outcrop sessions separate. You can change this later in Settings.";
 
 // MARK: - GitHubLoginView
 "Connect GitHub to fetch your repo list and add projects with a single click." = "Connect GitHub to fetch your repo list and add projects with a single click.";
@@ -241,7 +241,7 @@
 
 // MARK: - UserManualView
 // Topic titles
-"About Clarc" = "About Clarc";
+"About Clarc" = "About Outcrop";
 "Status Line" = "Status Line";
 "Project Management" = "Project Management";
 "Chat Basics" = "Chat Basics";
@@ -254,7 +254,7 @@
 "Permission Requests" = "Permission Requests";
 
 // Overview
-"What is Clarc?" = "What is Clarc?";
+"What is Clarc?" = "What is Outcrop?";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal.";
 "Main Layout" = "Main Layout";
 "The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "The left sidebar has Sessions and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs.";
@@ -351,7 +351,7 @@
 "Attaching Files" = "Attaching Files";
 "Click the clip icon to the left of the input field, or drag and drop files onto the input field. When dragging, the input field border highlights in the accent color to show the drop zone." = "Click the clip icon to the left of the input field, or drag and drop files onto the input field. When dragging, the input field border highlights in the accent color to show the drop zone.";
 "Clipboard Detection" = "Clipboard Detection";
-"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically.";
+"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "Pasting (⌘V) is smart — Outcrop detects what's in the clipboard and handles it automatically.";
 "Image data (PNG/TIFF) → attached as an image" = "Image data (PNG/TIFF) → attached as an image";
 "File path → attached as a file" = "File path → attached as a file";
 "URL → attached as a URL reference" = "URL → attached as a URL reference";
@@ -389,12 +389,12 @@
 "The exit code is shown at the bottom — \"exit 0\" means the command completed successfully." = "The exit code is shown at the bottom — \"exit 0\" means the command completed successfully.";
 
 // GitHub Integration
-"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click.";
+"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Outcrop with one click.";
 "Adding a Repository" = "Adding a Repository";
-"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project.";
+"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "Search for a repository by name, then click Add. Outcrop clones it automatically and opens it as a new project.";
 "Private repository" = "Private repository";
 "Public repository" = "Public repository";
-"Already added to Clarc" = "Already added to Clarc";
+"Already added to Clarc" = "Already added to Outcrop";
 
 // Skill Marketplace
 "Click the brain icon (🧠) in the toolbar to browse the MCP plugin catalog published on Anthropic's GitHub. Plugins can be filtered by category or searched by name, description, or author." = "Click the brain icon (🧠) in the toolbar to browse the MCP plugin catalog published on Anthropic's GitHub. Plugins can be filtered by category or searched by name, description, or author.";
@@ -472,17 +472,17 @@
 // Settings & Themes topic
 "Settings & Themes" = "Settings & Themes";
 "Opening Settings" = "Opening Settings";
-"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into three tabs: General, Slash Commands, and Shortcuts." = "Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into three tabs: General, Slash Commands, and Shortcuts.";
+"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into three tabs: General, Slash Commands, and Shortcuts." = "Choose Outcrop → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into three tabs: General, Slash Commands, and Shortcuts.";
 "General Tab" = "General Tab";
 "The General tab configures session defaults. Changes apply to newly created sessions — existing sessions keep their current values." = "The General tab configures session defaults. Changes apply to newly created sessions — existing sessions keep their current values.";
 "Accent color palette (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)" = "Accent color palette (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)";
 "Claude model used when starting a new session" = "Claude model used when starting a new session";
 "Permission mode applied to new sessions" = "Permission mode applied to new sessions";
 "Reasoning effort applied to new sessions" = "Reasoning effort applied to new sessions";
-"Show a system notification when a response completes while Clarc is in the background" = "Show a system notification when a response completes while Clarc is in the background";
+"Show a system notification when a response completes while Clarc is in the background" = "Show a system notification when a response completes while Outcrop is in the background";
 "Model, permission mode, and effort can also be overridden per session from the toolbar — the chosen value sticks to that session." = "Model, permission mode, and effort can also be overridden per session from the toolbar — the chosen value sticks to that session.";
 "Themes" = "Themes";
-"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose.";
+"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Outcrop ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose.";
 "Terracotta" = "Terracotta";
 "Ocean" = "Ocean";
 "Forest" = "Forest";
@@ -498,14 +498,14 @@
 "Slash Commands & Shortcuts Tabs" = "Slash Commands & Shortcuts Tabs";
 "The other two Settings tabs manage per-project slash commands and shortcut buttons. Slash command JSON import/export includes custom commands only; shortcut JSON import/export backs up the shortcut set." = "The other two Settings tabs manage per-project slash commands and shortcut buttons. Slash command JSON import/export includes custom commands only; shortcut JSON import/export backs up the shortcut set.";
 "Checking for Updates" = "Checking for Updates";
-"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch.";
+"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "Open Outcrop → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch.";
 
 // User Guide — Sessions & Chat additions
 "While Claude is responding, the send button turns into a stop button — click it or press Escape to cancel." = "While Claude is responding, the send button turns into a stop button — click it or press Escape to cancel.";
 "Thinking Traces" = "Thinking Traces";
 "When the model reasons before answering, its thinking appears in a collapsible block above the response. It expands automatically while Claude is thinking so you can follow along, then collapses once the answer begins. Click the header to expand or collapse it yourself." = "When the model reasons before answering, its thinking appears in a collapsible block above the response. It expands automatically while Claude is thinking so you can follow along, then collapses once the answer begins. Click the header to expand or collapse it yourself.";
 "Forking a Conversation" = "Forking a Conversation";
-"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker.";
+"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "Hover over any assistant message and click the branch icon to fork the conversation from that point. Outcrop opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker.";
 "Completing & Selecting Sessions" = "Completing & Selecting Sessions";
 "Click the circle to the left of a session title to mark it complete; completed sessions appear dimmed with a strikethrough. Use the checkmark button in the Sessions header to hide or show completed sessions." = "Click the circle to the left of a session title to mark it complete; completed sessions appear dimmed with a strikethrough. Use the checkmark button in the Sessions header to hide or show completed sessions.";
 "Add or remove a session from the selection" = "Add or remove a session from the selection";

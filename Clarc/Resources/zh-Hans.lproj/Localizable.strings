@@ -33,7 +33,7 @@
 "font.size.hint" = "分别调整界面和消息的字体大小。";
 "Notifications" = "通知";
 "Notify when response completes" = "响应完成时通知";
-"Sends a system notification while Clarc is in the background." = "当 Clarc 在后台时发送系统通知。";
+"Sends a system notification while Clarc is in the background." = "当 Outcrop 在后台时发送系统通知。";
 "Plan usage" = "套餐用量";
 "Show plan usage in the status line" = "在状态栏显示套餐用量";
 "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "从钥匙串读取 Claude Code 登录令牌，并直接向 Anthropic 请求 5 小时和 7 天用量。";
@@ -110,7 +110,7 @@
 "Projects" = "项目";
 "Rename Project" = "重命名项目";
 "Delete Project" = "删除项目";
-"This will remove the project from Clarc. The files on disk will not be deleted." = "这将从 Clarc 中移除该项目。磁盘上的文件不会被删除。";
+"This will remove the project from Clarc. The files on disk will not be deleted." = "这将从 Outcrop 中移除该项目。磁盘上的文件不会被删除。";
 "Project name" = "项目名称";
 
 // MARK: - HistoryListView
@@ -193,7 +193,7 @@
 "Install command:" = "安装命令：";
 "Check Again" = "重新检查";
 "Get Started" = "开始使用";
-"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "与 ~/.claude/projects/ 中的终端 CLI 共享会话历史。关闭后 Clarc 会话将单独保存。你之后可在设置中更改此项。";
+"Share session history with the terminal CLI in ~/.claude/projects/. Turn off to keep Clarc sessions separate. You can change this later in Settings." = "与 ~/.claude/projects/ 中的终端 CLI 共享会话历史。关闭后 Outcrop 会话将单独保存。你之后可在设置中更改此项。";
 
 // MARK: - GitHubLoginView
 "Connect GitHub to fetch your repo list and add projects with a single click." = "连接 GitHub 即可获取你的仓库列表，并一键添加项目。";
@@ -241,7 +241,7 @@
 
 // MARK: - UserManualView
 // Topic titles
-"About Clarc" = "关于 Clarc";
+"About Clarc" = "关于 Outcrop";
 "Project Management" = "项目管理";
 "Chat Basics" = "对话基础";
 "Keyboard Shortcuts" = "键盘快捷键";
@@ -254,7 +254,7 @@
 "Status Line" = "状态栏";
 
 // Overview
-"What is Clarc?" = "什么是 Clarc？";
+"What is Clarc?" = "什么是 Outcrop？";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "面向 Claude Code CLI 的原生 macOS 桌面客户端。无需终端，即可通过精致的图形界面使用 Claude Code 的全部功能。";
 "Main Layout" = "主界面布局";
 "The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "左侧边栏包含会话和文件标签页。项目标签显示在对话区域顶部 — 点击即可切换项目。右侧检查器面板包含终端和备忘标签页。";
@@ -351,7 +351,7 @@
 "Attaching Files" = "附加文件";
 "Click the clip icon to the left of the input field, or drag and drop files onto the input field. When dragging, the input field border highlights in the accent color to show the drop zone." = "点击输入框左侧的回形针图标，或将文件拖放到输入框上。拖动时，输入框边框会以强调色高亮以显示放置区域。";
 "Clipboard Detection" = "剪贴板检测";
-"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "粘贴 (⌘V) 很智能 — Clarc 会检测剪贴板中的内容并自动处理。";
+"Pasting (⌘V) is smart — Clarc detects what's in the clipboard and handles it automatically." = "粘贴 (⌘V) 很智能 — Outcrop 会检测剪贴板中的内容并自动处理。";
 "Image data (PNG/TIFF) → attached as an image" = "图片数据（PNG/TIFF）→ 作为图片附加";
 "File path → attached as a file" = "文件路径 → 作为文件附加";
 "URL → attached as a URL reference" = "URL → 作为 URL 引用附加";
@@ -389,12 +389,12 @@
 "The exit code is shown at the bottom — \"exit 0\" means the command completed successfully." = "退出代码显示在底部 — “exit 0”表示命令已成功完成。";
 
 // GitHub Integration
-"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "点击侧边栏顶部的 GitHub 标志按钮可打开 GitHub 面板。连接 GitHub 账户后，你的仓库会列出，并可一键添加到 Clarc。";
+"Click the GitHub Mark button at the top of the sidebar to open the GitHub panel. After connecting your GitHub account, your repositories are listed and can be added to Clarc with one click." = "点击侧边栏顶部的 GitHub 标志按钮可打开 GitHub 面板。连接 GitHub 账户后，你的仓库会列出，并可一键添加到 Outcrop。";
 "Adding a Repository" = "添加仓库";
-"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "按名称搜索仓库，然后点击添加。Clarc 会自动克隆它并将其作为新项目打开。";
+"Search for a repository by name, then click Add. Clarc clones it automatically and opens it as a new project." = "按名称搜索仓库，然后点击添加。Outcrop 会自动克隆它并将其作为新项目打开。";
 "Private repository" = "私有仓库";
 "Public repository" = "公开仓库";
-"Already added to Clarc" = "已添加到 Clarc";
+"Already added to Clarc" = "已添加到 Outcrop";
 
 // Skill Marketplace
 "Click the brain icon (🧠) in the toolbar to browse the MCP plugin catalog published on Anthropic's GitHub. Plugins can be filtered by category or searched by name, description, or author." = "点击工具栏中的大脑图标 (🧠) 可浏览发布在 Anthropic GitHub 上的 MCP 插件目录。可按类别筛选插件，或按名称、描述或作者搜索。";
@@ -483,7 +483,7 @@
 // Settings & Themes topic
 "Settings & Themes" = "设置与主题";
 "Opening Settings" = "打开设置";
-"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into four tabs: General, Message, Slash Commands, and Shortcuts." = "从菜单栏选择 Clarc → 设置，或按 ⌘, 打开设置窗口。设置分为四个标签页：通用、消息、斜杠命令和快捷按钮。";
+"Choose Clarc → Settings from the menu bar or press ⌘, to open the Settings window. Settings are organized into four tabs: General, Message, Slash Commands, and Shortcuts." = "从菜单栏选择 Outcrop → 设置，或按 ⌘, 打开设置窗口。设置分为四个标签页：通用、消息、斜杠命令和快捷按钮。";
 "General Tab" = "通用标签页";
 "The General tab configures session defaults. Changes apply to newly created sessions — existing sessions keep their current values." = "通用标签页用于配置会话默认值。更改适用于新创建的会话 — 现有会话会保留其当前值。";
 "Accent color palette (Terracotta, Ocean, Forest, Lavender, Midnight, Amber)" = "强调色调色板（Terracotta、Ocean、Forest、Lavender、Midnight、Amber）";
@@ -492,7 +492,7 @@
 "Claude model used when starting a new session" = "开始新会话时使用的 Claude 模型";
 "Permission mode applied to new sessions" = "应用于新会话的权限模式";
 "Reasoning effort applied to new sessions" = "应用于新会话的推理工作量";
-"Show a system notification when a response completes while Clarc is in the background" = "当 Clarc 在后台时，响应完成会显示系统通知";
+"Show a system notification when a response completes while Clarc is in the background" = "当 Outcrop 在后台时，响应完成会显示系统通知";
 "Model, permission mode, and effort can also be overridden per session from the toolbar — the chosen value sticks to that session." = "模型、权限模式和工作量也可在工具栏中按会话单独更改 — 所选值仅对该会话生效。";
 "Message Tab" = "消息标签页";
 "The Message tab controls chat display and attachment behavior." = "消息标签页用于控制对话显示和附件行为。";
@@ -502,7 +502,7 @@
 "Automatically show a preview chip when image data is pasted" = "粘贴图片数据时自动显示预览标签。";
 "Automatically convert long text (200+ characters) into an attachment chip when pasted" = "粘贴长文本（200 字符以上）时自动转换为附件标签。";
 "Themes" = "主题";
-"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Clarc 提供六种强调色主题。你可在主题选择器中直接预览每一种 — 选择时整个应用会即时变色。";
+"Clarc ships with six accent color themes. Preview each one directly from the theme picker — the whole app recolors live as you choose." = "Outcrop 提供六种强调色主题。你可在主题选择器中直接预览每一种 — 选择时整个应用会即时变色。";
 "Terracotta" = "Terracotta";
 "Ocean" = "Ocean";
 "Forest" = "Forest";
@@ -518,14 +518,14 @@
 "Slash Commands & Shortcuts Tabs" = "斜杠命令与快捷按钮标签页";
 "The Slash Commands tab manages built-in and custom commands — edit, enable/disable, add, or delete. JSON import/export covers custom commands only. The Shortcuts tab manages shortcut buttons with JSON import/export support." = "斜杠命令标签页用于管理内置和自定义命令 — 编辑、启用/禁用、添加或删除。JSON 导入/导出仅涵盖自定义命令。快捷按钮标签页用于管理快捷按钮，并支持 JSON 导入/导出。";
 "Checking for Updates" = "检查更新";
-"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "打开 Clarc → 检查更新…可手动运行 Sparkle 的更新检查。启动时也会自动检查更新。";
+"Open Clarc → Check for Updates… to run Sparkle's update check manually. Updates are also checked automatically on launch." = "打开 Outcrop → 检查更新…可手动运行 Sparkle 的更新检查。启动时也会自动检查更新。";
 
 // User Guide — Sessions & Chat additions
 "While Claude is responding, the send button turns into a stop button — click it or press Escape to cancel." = "Claude 响应时，发送按钮会变为停止按钮——点击它或按 Escape 即可取消。";
 "Thinking Traces" = "思考过程";
 "When the model reasons before answering, its thinking appears in a collapsible block above the response. It expands automatically while Claude is thinking so you can follow along, then collapses once the answer begins. Click the header to expand or collapse it yourself." = "当模型在回答前进行推理时，其思考过程会以可折叠的区块显示在响应上方。Claude 思考时该区块会自动展开，便于你实时跟进，回答开始后则自动折叠。点击标题可手动展开或折叠。";
 "Forking a Conversation" = "分支对话";
-"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "将鼠标悬停在任意助手消息上并点击分支图标，即可从该处分支对话。Clarc 会新建一个包含该消息之前历史记录的会话，保持原会话不变，并切换到新分支。分支后的会话也会出现在外部 claude --resume 选择列表中。";
+"Hover over any assistant message and click the branch icon to fork the conversation from that point. Clarc opens a new session with the history up to that message, leaves the original untouched, and switches to the new branch. Forked branches also appear in the external claude --resume picker." = "将鼠标悬停在任意助手消息上并点击分支图标，即可从该处分支对话。Outcrop 会新建一个包含该消息之前历史记录的会话，保持原会话不变，并切换到新分支。分支后的会话也会出现在外部 claude --resume 选择列表中。";
 "Completing & Selecting Sessions" = "完成与选择会话";
 "Click the circle to the left of a session title to mark it complete; completed sessions appear dimmed with a strikethrough. Use the checkmark button in the Sessions header to hide or show completed sessions." = "点击会话标题左侧的圆圈即可将其标记为完成；已完成的会话会变暗并显示删除线。使用会话标题栏中的对勾按钮可隐藏或显示已完成的会话。";
 "Add or remove a session from the selection" = "将会话加入或移出所选项";

@@ -58,10 +58,10 @@
 "Invalid JSON format." = "Formato JSON no válido.";
 "Imported %lld custom commands." = "Se importaron %lld comandos personalizados.";
 "A command with this name already exists." = "Ya existe un comando con este nombre.";
-"Clarc slash command export file." = "Archivo de exportación de comandos de barra de Clarc.";
+"Clarc slash command export file." = "Archivo de exportación de comandos de barra de Outcrop.";
 "Usage:" = "Uso:";
 "Edit the array below to add, remove, or change custom slash commands." = "Edita el arreglo de abajo para añadir, eliminar o cambiar comandos de barra personalizados.";
-"The leading slash is optional while editing names; Clarc saves names without it." = "La barra inicial es opcional al editar los nombres; Clarc guarda los nombres sin ella.";
+"The leading slash is optional while editing names; Clarc saves names without it." = "La barra inicial es opcional al editar los nombres; Outcrop guarda los nombres sin ella.";
 "Built-in command names are ignored on import and are never exported." = "Los nombres de los comandos integrados se ignoran al importar y nunca se exportan.";
 "Each custom command supports these properties:" = "Cada comando personalizado admite estas propiedades:";
 "name: command name without the leading slash." = "name: nombre del comando sin la barra inicial.";
@@ -72,7 +72,7 @@
 "All properties example:" = "Ejemplo con todas las propiedades:";
 "Short description shown in the command picker" = "Descripción breve que se muestra en el selector de comandos";
 "Optional longer description shown in command details" = "Descripción más larga opcional que se muestra en los detalles del comando";
-"Clarc shortcut export file." = "Archivo de exportación de atajos de Clarc.";
+"Clarc shortcut export file." = "Archivo de exportación de atajos de Outcrop.";
 "Edit the array below to add, remove, or change shortcuts." = "Edita el arreglo de abajo para añadir, eliminar o cambiar atajos.";
 "Each shortcut supports these properties:" = "Cada atajo admite estas propiedades:";
 "id: optional unique identifier (UUID). Auto-generated on import if omitted." = "id: identificador único opcional (UUID). Se genera automáticamente al importar si se omite.";

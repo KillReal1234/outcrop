@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E67335372F7356F600FD26C7"
-               BuildableName = "Clarc.app"
+               BuildableName = "Outcrop.app"
                BlueprintName = "Clarc"
                ReferencedContainer = "container:Clarc.xcodeproj">
             </BuildableReference>
@@ -58,7 +58,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E67335372F7356F600FD26C7"
-            BuildableName = "Clarc.app"
+            BuildableName = "Outcrop.app"
             BlueprintName = "Clarc"
             ReferencedContainer = "container:Clarc.xcodeproj">
          </BuildableReference>
@@ -75,7 +75,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E67335372F7356F600FD26C7"
-            BuildableName = "Clarc.app"
+            BuildableName = "Outcrop.app"
             BlueprintName = "Clarc"
             ReferencedContainer = "container:Clarc.xcodeproj">
          </BuildableReference>

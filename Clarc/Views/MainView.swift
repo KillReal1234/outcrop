@@ -89,7 +89,7 @@ struct MainView: View {
                 }
                 .navigationTitle({
                     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-                    let base = "Clarc(\(appVersion))"
+                    let base = "Outcrop(\(appVersion))"
                     if let cliVersion = appState.claudeVersion {
                         return "\(base) — CC \(cliVersion)"
                     }

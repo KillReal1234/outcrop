@@ -32,7 +32,7 @@
 		5A19C0DE2FB1000100000002 /* ClaudeSettingsPermissionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeSettingsPermissionsTests.swift; sourceTree = "<group>"; };
 		7321B5E8B81AAB1A2DC0593B /* ClarcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClarcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9993BB72A5307039A88B729 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		E67335382F7356F600FD26C7 /* Clarc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Clarc.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E67335382F7356F600FD26C7 /* Outcrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Outcrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -105,7 +105,7 @@
 		E67335392F7356F600FD26C7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E67335382F7356F600FD26C7 /* Clarc.app */,
+				E67335382F7356F600FD26C7 /* Outcrop.app */,
 				7321B5E8B81AAB1A2DC0593B /* ClarcTests.xctest */,
 			);
 			name = Products;
@@ -158,7 +158,7 @@
 				E6D001022FA0000100000001 /* ClarcChatKit */,
 			);
 			productName = Clarc;
-			productReference = E67335382F7356F600FD26C7 /* Clarc.app */;
+			productReference = E67335382F7356F600FD26C7 /* Outcrop.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -261,7 +261,7 @@
 				PRODUCT_NAME = ClarcTests;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Clarc.app/Contents/MacOS/Clarc";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Outcrop.app/Contents/MacOS/Outcrop";
 			};
 			name = Debug;
 		};
@@ -274,7 +274,7 @@
 				PRODUCT_NAME = ClarcTests;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Clarc.app/Contents/MacOS/Clarc";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Outcrop.app/Contents/MacOS/Outcrop";
 			};
 			name = Release;
 		};
@@ -420,8 +420,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.4.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.idealapp.Clarc;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.killreal1234.outcrop;
+				PRODUCT_MODULE_NAME = Clarc;
+				PRODUCT_NAME = Outcrop;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -454,8 +455,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.4.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.idealapp.Clarc;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.killreal1234.outcrop;
+				PRODUCT_MODULE_NAME = Clarc;
+				PRODUCT_NAME = Outcrop;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
