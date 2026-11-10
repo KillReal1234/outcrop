@@ -417,6 +417,7 @@ struct InspectorPanel: View {
 
     private func bumpFocus(for tab: InspectorTab) {
         switch tab {
+        case .session: break
         case .terminal: terminalFocusID = UUID()
         case .files: break
         case .memo: memoFocusID = UUID()
@@ -462,6 +463,9 @@ struct InspectorPanel: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             ZStack {
+                SessionInfoView(isVisible: windowState.showInspector && windowState.inspectorTab == .session)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .tabVisibility(windowState.inspectorTab == .session)
                 terminalView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(ClaudeTheme.codeBackground)

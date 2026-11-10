@@ -13,12 +13,12 @@ private func file(_ name: String) -> PreviewFile {
 @MainActor
 struct InspectorStateTests {
 
-    @Test func tabsAreOrderedTerminalFilesMemo() {
-        #expect(InspectorTab.allCases == [.terminal, .files, .memo])
+    @Test func tabsAreOrderedSessionTerminalFilesMemo() {
+        #expect(InspectorTab.allCases == [.session, .terminal, .files, .memo])
     }
 
-    @Test func defaultTabIsFiles() {
-        #expect(WindowState().inspectorTab == .files)
+    @Test func defaultTabIsSession() {
+        #expect(WindowState().inspectorTab == .session)
     }
 
     @Test func openingAFileShowsItInTheFilesTab() {

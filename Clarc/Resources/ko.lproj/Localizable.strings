@@ -551,3 +551,17 @@
 "Discard" = "버리기";
 "Close Preview" = "미리보기 닫기";
 "Folder not available" = "폴더를 사용할 수 없음";
+
+/* Inspector Session Tab */
+"Session" = "세션";
+"Environment" = "환경";
+"This Mac" = "이 Mac";
+"Context" = "컨텍스트";
+"Connectors" = "커넥터";
+"No session" = "세션 없음";
+"Connectors appear after you send a message" = "메시지를 보내면 커넥터가 표시됩니다";
+"No connectors" = "커넥터 없음";
+"Failed to connect" = "연결 실패";
+"Needs authentication" = "인증 필요";
+"Still connecting" = "아직 연결 중";
+"Status when the last reply started" = "마지막 응답 시작 시점의 상태";

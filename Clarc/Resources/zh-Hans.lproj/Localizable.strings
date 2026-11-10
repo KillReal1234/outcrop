@@ -551,3 +551,17 @@
 "Discard" = "放弃";
 "Close Preview" = "关闭预览";
 "Folder not available" = "文件夹不可用";
+
+/* Inspector Session Tab */
+"Session" = "会话";
+"Environment" = "环境";
+"This Mac" = "此 Mac";
+"Context" = "上下文";
+"Connectors" = "连接器";
+"No session" = "无会话";
+"Connectors appear after you send a message" = "发送消息后将显示连接器";
+"No connectors" = "无连接器";
+"Failed to connect" = "连接失败";
+"Needs authentication" = "需要身份验证";
+"Still connecting" = "仍在连接";
+"Status when the last reply started" = "最后一次回复开始时的状态";

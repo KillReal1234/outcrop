@@ -19,13 +19,92 @@ public struct SystemEvent: Sendable {
     public let tools: [String]?
     public let model: String?
     public let claudeCodeVersion: String?
+    /// MCP servers reported by the `init` event (`mcp_servers`). `nil` when absent or malformed.
+    public let mcpServers: [McpServerStatus]?
+    /// MCP server entries rejected by validation (`mcp_server_errors`). `nil` when absent or malformed.
+    public let mcpServerErrors: [McpServerError]?
 
-    public init(subtype: String, sessionId: String?, tools: [String]?, model: String?, claudeCodeVersion: String?) {
+    public init(subtype: String, sessionId: String?, tools: [String]?, model: String?, claudeCodeVersion: String?,
+                mcpServers: [McpServerStatus]? = nil, mcpServerErrors: [McpServerError]? = nil) {
         self.subtype = subtype
         self.sessionId = sessionId
         self.tools = tools
         self.model = model
         self.claudeCodeVersion = claudeCodeVersion
+        self.mcpServers = mcpServers
+        self.mcpServerErrors = mcpServerErrors
+    }
+
+    /// Connectors in the order the CLI reported them, followed by rejected entries as failed.
+    /// `nil` when the event carries no connector information at all.
+    public var connectors: [SessionConnector]? {
+        guard mcpServers != nil || mcpServerErrors != nil else { return nil }
+        let servers = (mcpServers ?? []).map {
+            SessionConnector(name: $0.name, state: SessionConnector.State(status: $0.status))
+        }
+        let errors = (mcpServerErrors ?? []).map {
+            SessionConnector(name: $0.name, state: .failed, message: $0.message)
+        }
+        return servers + errors
+    }
+}
+
+// MARK: - MCP Server Status
+
+public struct McpServerStatus: Sendable, Equatable {
+    public let name: String
+    public let status: String
+
+    public init(name: String, status: String) {
+        self.name = name
+        self.status = status
+    }
+}
+
+public struct McpServerError: Sendable, Equatable {
+    public let name: String
+    public let type: String?
+    public let message: String?
+
+    public init(name: String, type: String?, message: String?) {
+        self.name = name
+        self.type = type
+        self.message = message
+    }
+}
+
+// MARK: - Session Connector
+
+/// An MCP server (connector) of a session as last reported by the CLI.
+public struct SessionConnector: Sendable, Equatable, Hashable {
+    public enum State: Sendable, Equatable, Hashable {
+        case connected
+        case failed
+        case needsAuth
+        /// Still connecting when the reply started. The CLI sends no later update.
+        case pending
+        case unknown(String)
+
+        public init(status: String) {
+            switch status {
+            case "connected": self = .connected
+            case "failed": self = .failed
+            case "needs-auth": self = .needsAuth
+            case "pending": self = .pending
+            default: self = .unknown(status)
+            }
+        }
+    }
+
+    public let name: String
+    public let state: State
+    /// Error text for entries from `mcp_server_errors`.
+    public let message: String?
+
+    public init(name: String, state: State, message: String? = nil) {
+        self.name = name
+        self.state = state
+        self.message = message
     }
 }
 

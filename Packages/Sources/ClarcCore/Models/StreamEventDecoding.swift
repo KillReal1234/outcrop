@@ -44,6 +44,8 @@ extension SystemEvent: Decodable {
         case tools
         case model
         case claudeCodeVersion = "claude_code_version"
+        case mcpServers = "mcp_servers"
+        case mcpServerErrors = "mcp_server_errors"
     }
 
     public init(from decoder: Decoder) throws {
@@ -53,6 +55,36 @@ extension SystemEvent: Decodable {
         self.tools = try container.decodeIfPresent([String].self, forKey: .tools)
         self.model = try container.decodeIfPresent(String.self, forKey: .model)
         self.claudeCodeVersion = try container.decodeIfPresent(String.self, forKey: .claudeCodeVersion)
+        // Connector fields are not documented as stable: a missing or malformed list must not fail the event.
+        self.mcpServers = (try? container.decodeIfPresent([McpServerStatus].self, forKey: .mcpServers)) ?? nil
+        self.mcpServerErrors = (try? container.decodeIfPresent([McpServerError].self, forKey: .mcpServerErrors)) ?? nil
+    }
+}
+
+// MARK: - MCP Server Decodable
+
+extension McpServerStatus: Decodable {
+    private enum CodingKeys: String, CodingKey {
+        case name, status
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.status = try container.decodeIfPresent(String.self, forKey: .status) ?? "unknown"
+    }
+}
+
+extension McpServerError: Decodable {
+    private enum CodingKeys: String, CodingKey {
+        case name, type, message
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.type = try container.decodeIfPresent(String.self, forKey: .type)
+        self.message = try container.decodeIfPresent(String.self, forKey: .message)
     }
 }
 
