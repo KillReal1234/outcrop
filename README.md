@@ -1,3 +1,21 @@
+# Outcrop
+
+Outcrop is a fork of [Clarc](https://github.com/ttnear/Clarc) by ttnear. It keeps the Apache-2.0 license; see [LICENSE](LICENSE).
+
+Differences from upstream:
+
+1. The approval hook honors the permission rules from Claude Code settings.
+2. Plan usage in the status line is off by default, because it reads Claude Code's sign-in token.
+3. Its own name, bundle identifier and icon.
+4. Its own Application Support folder.
+5. Its own update feed.
+
+Releases are not notarized, so the first launch needs System Settings → Privacy & Security → Open Anyway.
+
+The original Clarc README follows.
+
+---
+
 # Clarc
 
 **The terminal was for the few. Clarc is for everyone.**
