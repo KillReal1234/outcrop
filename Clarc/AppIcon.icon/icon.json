@@ -1,0 +1,114 @@
+{
+  "fill-specializations": [
+    {
+      "value": {
+        "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "solid": "extended-srgb:0.16863,0.16471,0.15294,1.00000"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "layers": [
+        {
+          "fill-specializations": [
+            {
+              "value": {
+                "solid": "extended-srgb:0.16863,0.16471,0.15294,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+              }
+            },
+            {
+              "appearance": "tinted",
+              "value": {
+                "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+              }
+            }
+          ],
+          "image-name": "surface.svg",
+          "name": "Surface"
+        },
+        {
+          "fill-specializations": [
+            {
+              "value": {
+                "solid": "extended-srgb:0.16863,0.16471,0.15294,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+              }
+            },
+            {
+              "appearance": "tinted",
+              "value": {
+                "solid": "extended-srgb:0.94510,0.92549,0.88627,1.00000"
+              }
+            }
+          ],
+          "image-name": "bed-dark.svg",
+          "name": "Bed 3"
+        },
+        {
+          "fill-specializations": [
+            {
+              "value": {
+                "solid": "extended-srgb:0.85098,0.46667,0.34118,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "extended-srgb:0.85098,0.46667,0.34118,1.00000"
+              }
+            }
+          ],
+          "image-name": "bed-terracotta.svg",
+          "name": "Bed 2"
+        },
+        {
+          "fill-specializations": [
+            {
+              "value": {
+                "solid": "extended-srgb:0.54902,0.51765,0.45882,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "extended-srgb:0.54902,0.51765,0.45882,1.00000"
+              }
+            }
+          ],
+          "image-name": "bed-stone.svg",
+          "name": "Bed 1"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": [
+      "macOS"
+    ]
+  }
+}
