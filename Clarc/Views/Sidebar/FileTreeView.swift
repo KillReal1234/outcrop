@@ -8,6 +8,8 @@ struct FileTreeView: View {
     @Environment(AppState.self) private var appState
     @Environment(WindowState.self) private var windowState
     @State private var rootNode: FileNode?
+    /// True when the last scan finished without a tree (the project folder is missing or not a folder).
+    @State private var scanFailed = false
     @State private var isSearching = false
     @State private var searchText = ""
     @State private var showHiddenFiles = false
@@ -156,6 +158,18 @@ struct FileTreeView: View {
                         }
                     }
                 }
+            } else if scanFailed {
+                VStack(spacing: 8) {
+                    Spacer()
+                    Image(systemName: "folder.badge.questionmark")
+                        .font(.system(size: ClaudeTheme.size(24)))
+                        .foregroundStyle(ClaudeTheme.textTertiary)
+                    Text("Folder not available")
+                        .font(.system(size: ClaudeTheme.size(12)))
+                        .foregroundStyle(ClaudeTheme.textTertiary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
             } else {
                 // First load only — subsequent project switches keep the previous tree visible
                 // until the new scan completes (no flash).
@@ -174,6 +188,7 @@ struct FileTreeView: View {
         // Single .task replaces onAppear + multiple onChange reload calls.
         // SwiftUI auto-cancels the previous scan when the key changes.
         .task(id: TreeScanKey(path: projectPath, hidden: showHiddenFiles, tick: refreshTick)) {
+            scanFailed = false
             let path = projectPath
             let hidden = showHiddenFiles
             let node = await Task.detached(priority: .userInitiated) {
@@ -181,6 +196,7 @@ struct FileTreeView: View {
             }.value
             guard !Task.isCancelled else { return }
             rootNode = node
+            scanFailed = node == nil
         }
         .onChange(of: appState.isStreaming(in: windowState)) { old, new in
             if old && !new { refreshTick &+= 1 }

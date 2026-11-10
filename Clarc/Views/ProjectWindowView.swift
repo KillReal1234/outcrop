@@ -133,10 +133,15 @@ struct ProjectWindowView: View {
         if appState.inspectorPosition == .bottom {
             VStack(spacing: 0) {
                 chatCore
-                if inspectorStarted, windowState.showInspector {
-                    BottomInspectorDivider(height: $bottomInspectorHeight)
+                // Once started, the panel stays in the hierarchy and collapses to zero height when
+                // hidden (like the right dock), so the terminal and unsaved file edits survive.
+                if inspectorStarted {
+                    if windowState.showInspector {
+                        BottomInspectorDivider(height: $bottomInspectorHeight)
+                    }
+                    let panelHeight = windowState.showInspector ? CGFloat(bottomInspectorHeight) : 0
                     InspectorPanel(position: .bottom)
-                        .frame(maxWidth: .infinity, minHeight: CGFloat(bottomInspectorHeight), maxHeight: CGFloat(bottomInspectorHeight))
+                        .frame(maxWidth: .infinity, minHeight: panelHeight, maxHeight: panelHeight)
                 }
             }
         } else {
