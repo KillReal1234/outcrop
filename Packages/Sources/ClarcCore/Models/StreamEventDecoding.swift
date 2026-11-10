@@ -133,10 +133,35 @@ extension UserMessage: Decodable {
         let text: String?
         let content: String?
         let toolUseId: String?
+        let isError: Bool?
 
         private enum CodingKeys: String, CodingKey {
             case type, text, content
             case toolUseId = "tool_use_id"
+            case isError = "is_error"
+        }
+
+        /// A part of a list-shaped `content` (e.g. `{"type":"text","text":…}` or an image).
+        private struct ContentPart: Decodable {
+            let text: String?
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.type = try container.decodeIfPresent(String.self, forKey: .type)
+            self.text = try container.decodeIfPresent(String.self, forKey: .text)
+            self.toolUseId = try container.decodeIfPresent(String.self, forKey: .toolUseId)
+            self.isError = try container.decodeIfPresent(Bool.self, forKey: .isError)
+
+            // `content` is either a plain string or a list of parts (MCP tool results).
+            // Parts without text, such as images, are skipped.
+            if let string = try? container.decodeIfPresent(String.self, forKey: .content) {
+                self.content = string
+            } else if let parts = try? container.decodeIfPresent([ContentPart].self, forKey: .content) {
+                self.content = parts.compactMap(\.text).joined(separator: "\n")
+            } else {
+                self.content = nil
+            }
         }
     }
 
@@ -146,18 +171,21 @@ extension UserMessage: Decodable {
             keyedBy: MessageCodingKeys.self,
             forKey: .message
         )
-        self.isError = try messageContainer.decodeIfPresent(Bool.self, forKey: .isError) ?? false
+        let messageIsError = try messageContainer.decodeIfPresent(Bool.self, forKey: .isError)
 
         var blockToolUseId: String?
+        var blockIsError: Bool?
         if let stringContent = try? messageContainer.decode(String.self, forKey: .content) {
             self.content = stringContent
         } else if let blocks = try? messageContainer.decode([ContentBlockItem].self, forKey: .content) {
             let texts = blocks.compactMap { $0.type == "tool_result" ? $0.content : ($0.text ?? $0.content) }
             self.content = texts.joined(separator: "\n")
             blockToolUseId = blocks.first(where: { $0.toolUseId != nil })?.toolUseId
+            blockIsError = blocks.first(where: { $0.type == "tool_result" })?.isError
         } else {
             self.content = ""
         }
+        self.isError = messageIsError ?? blockIsError ?? false
         self.toolUseId = try messageContainer.decodeIfPresent(String.self, forKey: .toolUseId) ?? blockToolUseId
     }
 }
