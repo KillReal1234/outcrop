@@ -31,11 +31,6 @@ struct ProjectWindowView: View {
         .onAppear {
             windowState.isProjectWindow = true
         }
-        .sheet(item: Bindable(windowState).inspectorFile) { file in
-            FileInspectorView(filePath: file.path, fileName: file.name)
-                .frame(minWidth: 1000, idealWidth: 1400, maxWidth: 1920,
-                       minHeight: 600, idealHeight: 1000, maxHeight: 1200)
-        }
         .sheet(item: Bindable(windowState).diffFile) { file in
             FileDiffView(filePath: file.path, fileName: file.name, editHunks: file.editHunks)
                 .frame(minWidth: 1000, idealWidth: 1400, maxWidth: 1920,
@@ -90,7 +85,7 @@ struct ProjectWindowView: View {
             switch sidebarTab {
             case .files:
                 if let project = windowState.selectedProject {
-                    FileTreeView(projectPath: project.path, searchTrigger: $fileSearchTrigger)
+                    FileTreeView(projectPath: project.path)
                 }
             case .history:
                 HistoryListView()

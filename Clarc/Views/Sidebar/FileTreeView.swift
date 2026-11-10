@@ -5,7 +5,6 @@ import ClarcCore
 /// View that displays the project folder structure as a tree.
 struct FileTreeView: View {
     let projectPath: String
-    @Binding var searchTrigger: Bool
     @Environment(AppState.self) private var appState
     @Environment(WindowState.self) private var windowState
     @State private var rootNode: FileNode?
@@ -139,7 +138,7 @@ struct FileTreeView: View {
 
                             ForEach(results) { file in
                                 SearchResultRow(node: file, searchText: searchText, onFileSelect: { node in
-                                    windowState.inspectorFile = PreviewFile(path: node.id, name: node.name)
+                                    windowState.openFilePreview(PreviewFile(path: node.id, name: node.name))
                                 }, onAddPath: { node in
                                     addPathToInput(node)
                                 })
@@ -150,7 +149,7 @@ struct FileTreeView: View {
                     treeScrollView {
                         ForEach(root.children) { child in
                             FileNodeRow(node: child, depth: 0, onFileSelect: { node in
-                                windowState.inspectorFile = PreviewFile(path: node.id, name: node.name)
+                                windowState.openFilePreview(PreviewFile(path: node.id, name: node.name))
                             }, onAddPath: { node in
                                 addPathToInput(node)
                             })
@@ -186,12 +185,18 @@ struct FileTreeView: View {
         .onChange(of: appState.isStreaming(in: windowState)) { old, new in
             if old && !new { refreshTick &+= 1 }
         }
-        .onChange(of: searchTrigger) {
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isSearching = true
-                isSearchFieldFocused = true
-            }
+        // The tree is created lazily, so a request made before it existed is served on appear.
+        .onAppear { serveFileSearchRequest() }
+        .onChange(of: windowState.fileSearchTrigger) { serveFileSearchRequest() }
+    }
+
+    private func serveFileSearchRequest() {
+        guard windowState.takeFileSearchRequest() else { return }
+        withAnimation(.easeInOut(duration: 0.15)) {
+            isSearching = true
         }
+        // The search field is inserted by this update; focus it once it exists.
+        DispatchQueue.main.async { isSearchFieldFocused = true }
     }
 
     private func addPathToInput(_ node: FileNode) {
@@ -482,6 +487,6 @@ struct FileNode: Identifiable, Sendable {
 }
 
 #Preview {
-    FileTreeView(projectPath: "/Users/jmlee/workspace/Clarc", searchTrigger: .constant(false))
+    FileTreeView(projectPath: "/Users/jmlee/workspace/Clarc")
         .frame(width: 280, height: 400)
 }
