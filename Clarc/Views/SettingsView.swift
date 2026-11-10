@@ -324,7 +324,7 @@ struct GeneralSettingsTab: View {
     // MARK: - Source Code Section
 
     private var sourceCodeSection: some View {
-        Link(destination: URL(string: "https://github.com/ttnear/Clarc")!) {
+        Link(destination: URL(string: "https://github.com/KillReal1234/outcrop")!) {
             HStack(spacing: 10) {
                 Image(systemName: "chevron.left.forwardslash.chevron.right")
                     .font(.system(size: ClaudeTheme.size(14)))
@@ -333,7 +333,7 @@ struct GeneralSettingsTab: View {
                     Text("Open Source")
                         .font(.system(size: ClaudeTheme.size(13)))
                         .foregroundStyle(.primary)
-                    Text(verbatim: "github.com/ttnear/Clarc")
+                    Text(verbatim: "github.com/KillReal1234/outcrop")
                         .font(.system(size: ClaudeTheme.size(11)))
                         .foregroundStyle(.secondary)
                 }
