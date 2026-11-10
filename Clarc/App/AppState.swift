@@ -2717,16 +2717,14 @@ final class AppState {
         window.setSessionSwitchTask(Task { [weak self] in
             guard let self else { return }
             guard !Task.isCancelled else { return }
-            selectProject(project, in: window)
+            // No last-session restore: the selected session replaces it, and a
+            // restore would parse a second file. switchToSession loads the
+            // transcript once through reloadCommittedFromDisk.
+            selectProject(project, in: window, restoreLastSession: false)
             guard !Task.isCancelled else { return }
             if let s = allSessionSummaries.first(where: { $0.id == id }) {
                 let session = s.makeSession()
-                if sessionStates[session.id] == nil,
-                   let full = await persistence.loadFullSession(summary: s, cwd: project.path) {
-                    switchToSession(full, messages: full.messages, in: window)
-                } else {
-                    switchToSession(session, in: window)
-                }
+                switchToSession(session, in: window)
                 window.requestInputFocus = true
                 await didSwitchToSession(session)
             }
