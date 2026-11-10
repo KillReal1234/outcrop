@@ -70,6 +70,8 @@ struct GeneralSettingsTab: View {
                 Divider()
                 planUsageSection(appState: $appState.planUsageEnabled)
                 Divider()
+                chromeControlSection(appState: $appState.chromeControlEnabled)
+                Divider()
                 inspectorLayoutSection
                 Divider()
                 VStack(alignment: .leading, spacing: 8) {
@@ -192,6 +194,17 @@ struct GeneralSettingsTab: View {
             title: "Plan usage",
             label: "Show plan usage in the status line",
             detail: "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly.",
+            isOn: appState
+        )
+    }
+
+    // MARK: - Chrome Control Section
+
+    private func chromeControlSection(appState: Binding<Bool>) -> some View {
+        toggleSection(
+            title: "Chrome",
+            label: "Let Claude use Chrome",
+            detail: "Starts Claude Code with Claude in Chrome. Claude can open pages, click and type in your Chrome without asking. Requires Chrome with the Claude extension, signed in to the same account.",
             isOn: appState
         )
     }

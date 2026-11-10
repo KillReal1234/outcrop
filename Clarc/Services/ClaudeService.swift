@@ -268,7 +268,8 @@ actor ClaudeService {
         model: String? = nil,
         effort: String? = nil,
         hookSettingsPath: String? = nil,
-        permissionMode: PermissionMode = .default
+        permissionMode: PermissionMode = .default,
+        chromeEnabled: Bool = false
     ) -> AsyncStream<StreamEvent> {
         let stdin = Pipe()
         let stdout = Pipe()
@@ -297,6 +298,7 @@ actor ClaudeService {
                         effort: effort,
                         hookSettingsPath: hookSettingsPath,
                         permissionMode: permissionMode,
+                        chromeEnabled: chromeEnabled,
                         stdinPipe: stdin,
                         stdoutPipe: stdout,
                         stderrPipe: stderr,
@@ -410,7 +412,8 @@ actor ClaudeService {
         model: String?,
         effort: String?,
         hookSettingsPath: String?,
-        permissionMode: PermissionMode
+        permissionMode: PermissionMode,
+        chromeEnabled: Bool
     ) -> [String] {
         var args: [String] = [
             "-p",
@@ -456,6 +459,8 @@ actor ClaudeService {
             args += ["--effort", effort]
         }
 
+        args += ChromeControl.launchArguments(enabled: chromeEnabled)
+
         // With `--input-format stream-json`, the prompt is sent via stdin as a JSON
         // user message (see spawnProcess) rather than as a CLI argument.
         return args
@@ -471,6 +476,7 @@ actor ClaudeService {
         effort: String? = nil,
         hookSettingsPath: String?,
         permissionMode: PermissionMode = .default,
+        chromeEnabled: Bool = false,
         stdinPipe: Pipe,
         stdoutPipe: Pipe,
         stderrPipe: Pipe,
@@ -487,7 +493,8 @@ actor ClaudeService {
             model: model,
             effort: effort,
             hookSettingsPath: hookSettingsPath,
-            permissionMode: permissionMode
+            permissionMode: permissionMode,
+            chromeEnabled: chromeEnabled
         )
         proc.currentDirectoryURL = URL(fileURLWithPath: cwd)
         proc.standardInput = stdinPipe
