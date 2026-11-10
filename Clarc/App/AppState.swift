@@ -1959,13 +1959,30 @@ final class AppState {
             }
         }
 
+        // Open the project's last session straight from the summaries already
+        // in memory, so the tab never shows an empty new chat first.
+        // loadSessionHistory re-reads the summaries and falls back to a new
+        // chat if this session's file is gone.
+        let restored = SessionRestore.sessionToRestore(
+            project: project,
+            currentSessionId: nil,
+            summaries: allSessionSummaries,
+            restoreLastSession: restoreLastSession
+        )
+
         // animation: nil — all mutations land in the same frame; sessionStates.filter fires
         // one @Observable notification instead of N removeValue calls.
         withAnimation(nil) {
             window.selectedProject = project
             sessionStates = sessionStates.filter { $0.value.isStreaming }
             window.currentSessionId = nil
-            startNewChat(in: window)
+            if let restored {
+                switchToSession(restored.makeSession(), in: window)
+                window.requestInputFocus = true
+            } else {
+                startNewChat(in: window)
+            }
+            window.restoredSessionId = restored?.id
         }
 
         UserDefaults.standard.set(project.id.uuidString, forKey: "selectedProjectId")
@@ -2238,6 +2255,21 @@ final class AppState {
     func loadSessionHistory(in window: WindowState, restoreLastSession: Bool = true) async {
         guard let project = window.selectedProject else { return }
         await reloadSessionSummaries(for: project)
+
+        // The session selectProject restored from in-memory summaries may have
+        // been deleted outside the app: fall back to a new chat.
+        if let restoredId = window.restoredSessionId {
+            window.restoredSessionId = nil
+            if SessionRestore.restoredSessionIsGone(
+                restoredSessionId: restoredId,
+                currentSessionId: window.currentSessionId,
+                projectId: project.id,
+                summaries: allSessionSummaries
+            ) {
+                startNewChat(in: window)
+                return
+            }
+        }
 
         // Restore the last-used session when entering a project in new-chat state
         // so the status bar shows persisted stats immediately. No didSwitchToSession

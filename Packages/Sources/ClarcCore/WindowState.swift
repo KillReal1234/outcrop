@@ -64,6 +64,10 @@ public final class WindowState {
 
     public var selectedProject: Project?
     public var currentSessionId: String?
+    /// Session opened by entering the selected project (its last session),
+    /// before the project's summaries were re-read. Lets the reload fall back
+    /// to a new chat if that session's file turns out to be gone.
+    public var restoredSessionId: String?
 
     // MARK: - Placeholder Tracking
 
