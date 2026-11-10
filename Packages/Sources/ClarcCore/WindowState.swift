@@ -4,12 +4,14 @@ import SwiftUI
 // MARK: - InspectorTab
 
 public enum InspectorTab: String, CaseIterable {
+    case session = "Session"
     case terminal = "Terminal"
     case files = "Files"
     case memo = "Memo"
 
     public var icon: String {
         switch self {
+        case .session: "info.circle"
         case .terminal: "apple.terminal"
         case .files: "folder"
         case .memo: "note.text"
@@ -105,7 +107,7 @@ public final class WindowState {
 
     public var interactiveTerminal: InteractiveTerminalState?
     public var showInspector: Bool = false
-    public var inspectorTab: InspectorTab = .files
+    public var inspectorTab: InspectorTab = .session
     /// File shown in the inspector's Files tab. Change it through `openFilePreview(_:)`
     /// and `closeFilePreview()` so unsaved edits are not dropped.
     public var inspectorFile: PreviewFile?

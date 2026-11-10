@@ -531,3 +531,17 @@
 "Discard" = "Discard";
 "Close Preview" = "Close Preview";
 "Folder not available" = "Folder not available";
+
+/* Inspector Session Tab */
+"Session" = "Session";
+"Environment" = "Environment";
+"This Mac" = "This Mac";
+"Context" = "Context";
+"Connectors" = "Connectors";
+"No session" = "No session";
+"Connectors appear after you send a message" = "Connectors appear after you send a message";
+"No connectors" = "No connectors";
+"Failed to connect" = "Failed to connect";
+"Needs authentication" = "Needs authentication";
+"Still connecting" = "Still connecting";
+"Status when the last reply started" = "Status when the last reply started";

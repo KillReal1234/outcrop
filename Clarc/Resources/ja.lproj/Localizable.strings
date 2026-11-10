@@ -551,3 +551,17 @@
 "Discard" = "破棄";
 "Close Preview" = "プレビューを閉じる";
 "Folder not available" = "フォルダを利用できません";
+
+/* Inspector Session Tab */
+"Session" = "セッション";
+"Environment" = "環境";
+"This Mac" = "この Mac";
+"Context" = "コンテキスト";
+"Connectors" = "コネクタ";
+"No session" = "セッションなし";
+"Connectors appear after you send a message" = "メッセージを送信するとコネクタが表示されます";
+"No connectors" = "コネクタなし";
+"Failed to connect" = "接続に失敗しました";
+"Needs authentication" = "認証が必要です";
+"Still connecting" = "接続中";
+"Status when the last reply started" = "最後の応答開始時の状態";

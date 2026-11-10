@@ -551,3 +551,17 @@
 "Discard" = "放棄";
 "Close Preview" = "關閉預覽";
 "Folder not available" = "資料夾無法使用";
+
+/* Inspector Session Tab */
+"Session" = "工作階段";
+"Environment" = "環境";
+"This Mac" = "這台 Mac";
+"Context" = "上下文";
+"Connectors" = "連接器";
+"No session" = "無工作階段";
+"Connectors appear after you send a message" = "傳送訊息後將顯示連接器";
+"No connectors" = "無連接器";
+"Failed to connect" = "連線失敗";
+"Needs authentication" = "需要驗證";
+"Still connecting" = "仍在連線";
+"Status when the last reply started" = "最後一次回覆開始時的狀態";

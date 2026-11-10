@@ -551,3 +551,17 @@
 "Discard" = "Descartar";
 "Close Preview" = "Cerrar vista previa";
 "Folder not available" = "Carpeta no disponible";
+
+/* Inspector Session Tab */
+"Session" = "Sesión";
+"Environment" = "Entorno";
+"This Mac" = "Este Mac";
+"Context" = "Contexto";
+"Connectors" = "Conectores";
+"No session" = "Sin sesión";
+"Connectors appear after you send a message" = "Los conectores aparecen después de enviar un mensaje";
+"No connectors" = "Sin conectores";
+"Failed to connect" = "Error al conectar";
+"Needs authentication" = "Requiere autenticación";
+"Still connecting" = "Aún conectando";
+"Status when the last reply started" = "Estado al iniciar la última respuesta";
