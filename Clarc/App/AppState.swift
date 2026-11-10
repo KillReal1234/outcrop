@@ -90,6 +90,9 @@ final class AppState {
     /// both attributes match, so shrink/rewrite always triggers a fresh parse.
     private var lastCommittedReloadKey: [String: ReloadCacheKey] = [:]
 
+    /// Connectors (MCP servers) reported by the last CLI `init` event of each session. Key: sessionId. Memory only.
+    var sessionConnectors: [String: [SessionConnector]] = [:]
+
     /// Retained token for the NSApplication.didBecomeActiveNotification observer.
     /// Stored so we can remove it in deinit.
     private var didBecomeActiveObserverToken: NSObjectProtocol?
@@ -1231,6 +1234,7 @@ final class AppState {
                     // would re-key state to a bogus id and insert a phantom history entry that
                     // vanishes when the turn ends and the list is rebuilt from disk.
                     if systemEvent.subtype == "init", let sid = systemEvent.sessionId {
+                        sessionConnectors[sid] = systemEvent.connectors ?? []
                         await permission.registerSession(sid: sid, projectKey: cwd, mode: permissionMode)
                         if sessionKey != sid {
                             let oldKey = sessionKey
@@ -2486,6 +2490,7 @@ final class AppState {
         allSessionSummaries.removeAll { $0.id == session.id }
         sessionStates.removeValue(forKey: session.id)
         lastCommittedReloadKey.removeValue(forKey: session.id)
+        sessionConnectors.removeValue(forKey: session.id)
     }
 
     func deleteAllSessions(projectId: UUID? = nil, in window: WindowState) async {
@@ -2523,6 +2528,7 @@ final class AppState {
         for id in ids {
             sessionStates.removeValue(forKey: id)
             lastCommittedReloadKey.removeValue(forKey: id)
+            sessionConnectors.removeValue(forKey: id)
         }
     }
 
