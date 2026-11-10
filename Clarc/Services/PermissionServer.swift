@@ -462,8 +462,7 @@ actor PermissionServer {
     // MARK: - Bash Allowlist Persistence
 
     private static var bashAllowlistURL: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        return appSupport.appendingPathComponent("Clarc").appendingPathComponent("bash_allowlist.json")
+        AppSupport.bundleScopedURL.appendingPathComponent("bash_allowlist.json")
     }
 
     private func loadBashAllowlistIfNeeded() async {
