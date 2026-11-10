@@ -34,6 +34,9 @@
 "Notifications" = "通知";
 "Notify when response completes" = "応答完了時に通知";
 "Sends a system notification while Clarc is in the background." = "Clarc がバックグラウンドにあるときにシステム通知を送信します。";
+"Plan usage" = "プランの使用量";
+"Show plan usage in the status line" = "ステータスラインにプランの使用量を表示";
+"Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "キーチェーンから Claude Code のサインイントークンを読み取り、5 時間および 7 日間の使用量を Anthropic に直接問い合わせます。";
 "Open Source" = "オープンソース";
 "Response complete" = "応答完了";
 

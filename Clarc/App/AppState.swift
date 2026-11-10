@@ -231,6 +231,15 @@ final class AppState {
         didSet { UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled") }
     }
 
+    // MARK: - Plan Usage
+
+    /// Off by default: the status line's 5h/7d segments read Claude Code's OAuth credentials from
+    /// the Keychain and call Anthropic's usage API directly, so the user has to opt in.
+    /// `StatusLineView` observes the same UserDefaults key through `@AppStorage`.
+    var planUsageEnabled: Bool = (UserDefaults.standard.object(forKey: "planUsageEnabled") as? Bool) ?? false {
+        didSet { UserDefaults.standard.set(planUsageEnabled, forKey: "planUsageEnabled") }
+    }
+
     // MARK: - Focus Mode
 
     var focusMode: Bool = (UserDefaults.standard.object(forKey: "focusMode") as? Bool) ?? false {
@@ -652,8 +661,10 @@ final class AppState {
             guard let self, let window else { return }
             await self.forkFromHere(messageId: messageId, in: window)
         }
-        bridge.fetchRateLimitHandler = {
-            await RateLimitService.shared.fetchUsage()
+        bridge.fetchRateLimitHandler = { [weak self] in
+            // Opt-in only: fetching usage reads Claude Code's OAuth credentials from the Keychain.
+            guard let self, self.planUsageEnabled else { return nil }
+            return await RateLimitService.shared.fetchUsage()
         }
 
         startBridgeObservation(bridge, for: window)

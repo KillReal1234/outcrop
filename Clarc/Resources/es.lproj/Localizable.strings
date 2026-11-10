@@ -34,6 +34,9 @@
 "Notifications" = "Notificaciones";
 "Notify when response completes" = "Notificar al completar la respuesta";
 "Sends a system notification while Clarc is in the background." = "Envía una notificación del sistema cuando Clarc está en segundo plano.";
+"Plan usage" = "Uso del plan";
+"Show plan usage in the status line" = "Mostrar el uso del plan en la barra de estado";
+"Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "Lee el token de inicio de sesión de Claude Code del llavero y solicita directamente a Anthropic tu uso de 5 horas y de 7 días.";
 "Open Source" = "Código abierto";
 "Response complete" = "Respuesta completada";
 

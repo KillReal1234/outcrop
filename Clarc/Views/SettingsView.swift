@@ -68,6 +68,8 @@ struct GeneralSettingsTab: View {
                 Divider()
                 notificationsSection(appState: $appState.notificationsEnabled)
                 Divider()
+                planUsageSection(appState: $appState.planUsageEnabled)
+                Divider()
                 inspectorLayoutSection
                 Divider()
                 VStack(alignment: .leading, spacing: 8) {
@@ -179,6 +181,17 @@ struct GeneralSettingsTab: View {
             title: "Notifications",
             label: "Notify when response completes",
             detail: "Sends a system notification while Clarc is in the background.",
+            isOn: appState
+        )
+    }
+
+    // MARK: - Plan Usage Section
+
+    private func planUsageSection(appState: Binding<Bool>) -> some View {
+        toggleSection(
+            title: "Plan usage",
+            label: "Show plan usage in the status line",
+            detail: "Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly.",
             isOn: appState
         )
     }

@@ -34,6 +34,9 @@
 "Notifications" = "알림";
 "Notify when response completes" = "응답 완료 시 알림";
 "Sends a system notification while Clarc is in the background." = "Clarc가 백그라운드에 있을 때 시스템 알림을 보냅니다.";
+"Plan usage" = "플랜 사용량";
+"Show plan usage in the status line" = "상태 표시줄에 플랜 사용량 표시";
+"Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "키체인에서 Claude Code 로그인 토큰을 읽어 5시간 및 7일 사용량을 Anthropic에 직접 요청합니다.";
 "Open Source" = "오픈 소스";
 "Response complete" = "응답 완료";
 

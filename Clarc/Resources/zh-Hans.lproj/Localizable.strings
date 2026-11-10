@@ -34,6 +34,9 @@
 "Notifications" = "通知";
 "Notify when response completes" = "响应完成时通知";
 "Sends a system notification while Clarc is in the background." = "当 Clarc 在后台时发送系统通知。";
+"Plan usage" = "套餐用量";
+"Show plan usage in the status line" = "在状态栏显示套餐用量";
+"Reads the Claude Code sign-in token from the Keychain and requests your 5-hour and 7-day usage from Anthropic directly." = "从钥匙串读取 Claude Code 登录令牌，并直接向 Anthropic 请求 5 小时和 7 天用量。";
 "Open Source" = "开源";
 "Response complete" = "响应完成";
 

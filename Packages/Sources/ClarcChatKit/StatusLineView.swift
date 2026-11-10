@@ -5,6 +5,8 @@ struct StatusLineView: View {
     @Environment(ChatBridge.self) private var chatBridge
     @Environment(WindowState.self) private var windowState
     @State private var rateLimit: RateLimitUsage?
+    /// Mirrors `AppState.planUsageEnabled`. While off, the usage segments are hidden and nothing is fetched.
+    @AppStorage("planUsageEnabled") private var planUsageEnabled = false
 
     private var modelDisplayName: String {
         chatBridge.modelDisplayName
@@ -32,10 +34,12 @@ struct StatusLineView: View {
 
             Divider().frame(height: 12)
 
-            rateLimitSegment(label: String(localized: "5h", bundle: .module), icon: "clock", percent: rateLimit?.fiveHourPercent, resetsAt: rateLimit?.fiveHourResetsAt)
-            rateLimitSegment(label: String(localized: "7d", bundle: .module), icon: "calendar", percent: rateLimit?.sevenDayPercent, resetsAt: rateLimit?.sevenDayResetsAt)
+            if planUsageEnabled {
+                rateLimitSegment(label: String(localized: "5h", bundle: .module), icon: "clock", percent: rateLimit?.fiveHourPercent, resetsAt: rateLimit?.fiveHourResetsAt)
+                rateLimitSegment(label: String(localized: "7d", bundle: .module), icon: "calendar", percent: rateLimit?.sevenDayPercent, resetsAt: rateLimit?.sevenDayResetsAt)
 
-            Divider().frame(height: 12)
+                Divider().frame(height: 12)
+            }
 
             HStack(spacing: 4) {
                 Image(systemName: "memorychip")
@@ -76,6 +80,9 @@ struct StatusLineView: View {
                 try? await Task.sleep(for: .seconds(5))
                 await refreshRateLimit()
             }
+        }
+        .onChange(of: planUsageEnabled) { _, _ in
+            Task { await refreshRateLimit() }
         }
         .onChange(of: chatBridge.isStreaming) { old, new in
             if old && !new {
@@ -184,6 +191,10 @@ struct StatusLineView: View {
     }
 
     private func refreshRateLimit() async {
+        guard planUsageEnabled else {
+            rateLimit = nil
+            return
+        }
         rateLimit = await chatBridge.fetchRateLimit()
     }
 }
