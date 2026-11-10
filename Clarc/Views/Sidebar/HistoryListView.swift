@@ -215,7 +215,7 @@ struct HistoryListView: View {
 
     private func startNewSession(inProjectId projectId: UUID) {
         guard let project = appState.projects.first(where: { $0.id == projectId }) else { return }
-        appState.selectProject(project, in: windowState)
+        appState.selectProject(project, in: windowState, restoreLastSession: false)
         appState.startNewChat(in: windowState)
     }
 
