@@ -232,7 +232,7 @@ actor GitHubService {
     func registerSSHKey(_ publicKey: String) async throws {
         let body = try JSONSerialization.data(
             withJSONObject: [
-                "title": "Clarc (\(Host.current().localizedName ?? "Mac"))",
+                "title": "Outcrop (\(Host.current().localizedName ?? "Mac"))",
                 "key": publicKey
             ]
         )

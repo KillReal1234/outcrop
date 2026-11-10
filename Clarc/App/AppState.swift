@@ -2358,8 +2358,8 @@ final class AppState {
 
     func cloneAndAddProject(_ repo: GitHubRepo, in window: WindowState) async throws {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        let clonePath = "\(home)/Clarc/\(repo.name)"
-        let parentDir = "\(home)/Clarc"
+        let clonePath = "\(home)/Outcrop/\(repo.name)"
+        let parentDir = "\(home)/Outcrop"
         let fm = FileManager.default
         if !fm.fileExists(atPath: parentDir) {
             try fm.createDirectory(atPath: parentDir, withIntermediateDirectories: true)
