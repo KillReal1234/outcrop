@@ -133,6 +133,10 @@
 "Unpin" = "Unpin";
 "Pin" = "Pin";
 "No chat history" = "No sessions";
+"New Session" = "New Session";
+"No sessions" = "No sessions";
+"Other" = "Other";
+"New Session in %@" = "New Session in %@";
 
 // MARK: - GitStatusView
 "Checking..." = "Checking...";

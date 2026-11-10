@@ -133,6 +133,10 @@
 "Unpin" = "Desfijar";
 "Pin" = "Fijar";
 "No chat history" = "Sin sesiones";
+"New Session" = "Nueva sesión";
+"No sessions" = "Sin sesiones";
+"Other" = "Otros";
+"New Session in %@" = "Nueva sesión en %@";
 
 // MARK: - GitStatusView
 "Checking..." = "Comprobando...";
