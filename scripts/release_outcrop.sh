@@ -2,13 +2,19 @@
 #
 # Outcrop release script.
 #
-# Usage:   scripts/release_outcrop.sh <version> [--dry-run]
+# Usage:   scripts/release_outcrop.sh <version> [--dry-run] [--build N]
 # Example: OUTCROP_TEAM_ID=<team id> scripts/release_outcrop.sh 0.1.1
 #          OUTCROP_TEAM_ID=<team id> scripts/release_outcrop.sh 0.1.1 --dry-run
+#          OUTCROP_TEAM_ID=<team id> scripts/release_outcrop.sh 0.1.1 --dry-run --build 2
+#
+# The build number is the highest sparkle:version in appcast.xml + 1 (1 for an empty feed).
+# --build N sets it explicitly; it is meant for rehearsals, where appcast.xml in the working
+# tree does not change between dry runs. Either way, appcast.xml must not already have a build
+# that is equal to or higher than the new one.
 #
 # A real run:
 #   1. checks that the working tree is clean and the branch is `fork`;
-#   2. sets MARKETING_VERSION to <version> and CURRENT_PROJECT_VERSION to the current build + 1;
+#   2. sets MARKETING_VERSION to <version> and CURRENT_PROJECT_VERSION to the new build number;
 #   3. archives a Release build signed with the local Apple Development identity (no notarization);
 #   4. zips Outcrop.app with ditto, checks the code signature of the unpacked copy, and signs the zip
 #      with the Sparkle key stored under `--account outcrop`;
@@ -27,7 +33,7 @@
 set -euo pipefail
 
 usage() {
-    echo "Usage: scripts/release_outcrop.sh <version> [--dry-run]" >&2
+    echo "Usage: scripts/release_outcrop.sh <version> [--dry-run] [--build N]" >&2
     exit 1
 }
 
@@ -38,18 +44,31 @@ fail() {
 
 VERSION=""
 DRY_RUN=0
-for arg in "$@"; do
-    case "$arg" in
+BUILD_ARG=""
+while [ $# -gt 0 ]; do
+    case "$1" in
         --dry-run) DRY_RUN=1 ;;
-        -*) usage ;;
+        --build)
+            [ $# -ge 2 ] || fail "--build needs a positive integer, for example: --build 2"
+            BUILD_ARG="$2"
+            shift
+            ;;
+        -*)
+            echo "error: unknown option '$1'" >&2
+            usage
+            ;;
         *)
-            [ -z "$VERSION" ] || usage
-            VERSION="$arg"
+            [ -z "$VERSION" ] || fail "unexpected argument '$1', the version is already '$VERSION'"
+            VERSION="$1"
             ;;
     esac
+    shift
 done
 [ -n "$VERSION" ] || usage
 [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "version must look like 1.2.3, got '$VERSION'"
+if [ -n "$BUILD_ARG" ] && ! [[ "$BUILD_ARG" =~ ^[1-9][0-9]*$ ]]; then
+    fail "--build needs a positive integer, got '$BUILD_ARG'"
+fi
 
 [ -n "${OUTCROP_TEAM_ID:-}" ] || fail "OUTCROP_TEAM_ID is not set. Export the team ID of your Apple Development certificate, for example: OUTCROP_TEAM_ID=<team id> scripts/release_outcrop.sh $VERSION"
 
@@ -86,19 +105,26 @@ else
 fi
 
 # --- 2. Version and build number --------------------------------------------
-CURRENT_BUILD="$(grep -m1 'CURRENT_PROJECT_VERSION = ' "$PBXPROJ" | sed -E 's/.*= ([0-9]+);.*/\1/')"
-[[ "$CURRENT_BUILD" =~ ^[0-9]+$ ]] || fail "could not read CURRENT_PROJECT_VERSION from $PBXPROJ"
-NEW_BUILD=$((CURRENT_BUILD + 1))
-
+# The highest build already in the feed; 0 for an empty feed.
 APPCAST_MAX="$(grep -oE '<sparkle:version>[0-9]+</sparkle:version>' "$APPCAST" | grep -oE '[0-9]+' | sort -rn | head -1 || true)"
-if [ -n "$APPCAST_MAX" ] && [ "$APPCAST_MAX" -ge "$NEW_BUILD" ]; then
+APPCAST_MAX="${APPCAST_MAX:-0}"
+if [ -n "$BUILD_ARG" ]; then
+    NEW_BUILD="$BUILD_ARG"
+else
+    NEW_BUILD=$((APPCAST_MAX + 1))
+fi
+if [ "$APPCAST_MAX" -ge "$NEW_BUILD" ]; then
     fail "appcast.xml already has build $APPCAST_MAX, which is not lower than the new build $NEW_BUILD"
 fi
 if grep -q "<sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>" "$APPCAST"; then
     fail "appcast.xml already has version $VERSION"
 fi
 
-echo "Outcrop $TAG, build $NEW_BUILD (current build $CURRENT_BUILD)"
+if [ -n "$BUILD_ARG" ]; then
+    echo "Outcrop $TAG, build $NEW_BUILD (set with --build; highest build in appcast.xml: $APPCAST_MAX)"
+else
+    echo "Outcrop $TAG, build $NEW_BUILD (highest build in appcast.xml: $APPCAST_MAX)"
+fi
 [ "$DRY_RUN" = 1 ] && echo "Dry run: output goes to $OUT_DIR, the working tree is not changed"
 
 if [ "$DRY_RUN" = 0 ]; then
@@ -216,7 +242,10 @@ if [ "$DRY_RUN" = 1 ]; then
 fi
 
 # --- 6. Commit ---------------------------------------------------------------
+# project.pbxproj may be unchanged (the first release keeps 0.1.0 / build 1);
+# appcast.xml always has the new item, so the commit is never empty.
 git add "$PBXPROJ" "$APPCAST"
+git diff --cached --quiet -- "$APPCAST" && fail "appcast.xml has no staged changes, nothing to commit"
 git commit -m "chore(release): $TAG (build $NEW_BUILD)"
 
 # --- 7. Publish commands (printed only, never run here) ----------------------
