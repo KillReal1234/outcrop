@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		33993F0F87CF4DB09F2813A8 /* AppStateProjectSwitchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4381E755142272EB2DAA9C96 /* AppStateProjectSwitchTests.swift */; };
+		5A19C0DE2FB1000100000001 /* ClaudeSettingsPermissionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A19C0DE2FB1000100000002 /* ClaudeSettingsPermissionsTests.swift */; };
 		92E180F9B311F3C72D5DE6B7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9993BB72A5307039A88B729 /* Cocoa.framework */; };
 		DCA8CF4A05C959C4A6EB391F /* ClarcCore in Frameworks */ = {isa = PBXBuildFile; productRef = CCDF9594876099576D4FD46E /* ClarcCore */; };
 		E6821AC12F7CEE7200829FC9 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = E6A001012F8A000100000001 /* SwiftTerm */; };
@@ -28,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		4381E755142272EB2DAA9C96 /* AppStateProjectSwitchTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppStateProjectSwitchTests.swift; sourceTree = "<group>"; };
+		5A19C0DE2FB1000100000002 /* ClaudeSettingsPermissionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaudeSettingsPermissionsTests.swift; sourceTree = "<group>"; };
 		7321B5E8B81AAB1A2DC0593B /* ClarcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClarcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9993BB72A5307039A88B729 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		E67335382F7356F600FD26C7 /* Clarc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Clarc.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				4381E755142272EB2DAA9C96 /* AppStateProjectSwitchTests.swift */,
+				5A19C0DE2FB1000100000002 /* ClaudeSettingsPermissionsTests.swift */,
 			);
 			path = ClarcTests;
 			sourceTree = "<group>";
@@ -226,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33993F0F87CF4DB09F2813A8 /* AppStateProjectSwitchTests.swift in Sources */,
+				5A19C0DE2FB1000100000001 /* ClaudeSettingsPermissionsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
