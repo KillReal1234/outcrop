@@ -201,6 +201,22 @@ actor PersistenceService {
         }
     }
 
+    /// Loads only the end of a CLI session (see `CLISessionStore.loadSessionTail`),
+    /// so a large transcript can show its latest messages first. Legacy json
+    /// sessions are small and have no tail load: `nil`.
+    func loadSessionTail(summary: ChatSession.Summary, cwd: String) async -> ChatSession? {
+        switch summary.origin {
+        case .cliBacked:
+            return await cliStore.loadSessionTail(
+                sid: summary.id,
+                cwd: cwd,
+                projectId: summary.projectId
+            )
+        case .legacyClarc:
+            return nil
+        }
+    }
+
     /// Synchronous load for legacy json sessions. Kept available for the few
     /// MainActor sites that still call it directly.
     nonisolated func legacySessionURL(projectId: UUID, sessionId: String) -> URL {

@@ -87,3 +87,70 @@ struct SessionRestoreTests {
         #expect(result == nil)
     }
 }
+
+// A session restored when a project tab is selected is opened from the summaries
+// already in memory. Once the summaries are re-read, a restored session whose
+// file is gone is replaced by a new chat. A session the user picked or started
+// is never touched by this rule.
+
+@Suite("SessionRestore.restoredSessionIsGone")
+struct RestoredSessionIsGoneTests {
+
+    @Test func restoredSessionMissingFromSummaries_isGone() {
+        let projectId = UUID()
+        let result = SessionRestore.restoredSessionIsGone(
+            restoredSessionId: "last",
+            currentSessionId: "last",
+            projectId: projectId,
+            summaries: [summary("other", projectId: projectId)]
+        )
+        #expect(result)
+    }
+
+    @Test func restoredSessionOfAnotherProjectOnly_isGone() {
+        let result = SessionRestore.restoredSessionIsGone(
+            restoredSessionId: "last",
+            currentSessionId: "last",
+            projectId: UUID(),
+            summaries: [summary("last", projectId: UUID())]
+        )
+        #expect(result)
+    }
+
+    @Test func restoredSessionStillPresent_stays() {
+        let projectId = UUID()
+        let result = SessionRestore.restoredSessionIsGone(
+            restoredSessionId: "last",
+            currentSessionId: "last",
+            projectId: projectId,
+            summaries: [summary("last", projectId: projectId)]
+        )
+        #expect(!result)
+    }
+
+    @Test func sessionStartedByUser_isNotTouched() {
+        let projectId = UUID()
+        // The user moved on from the restored session to a new one that has
+        // no summary yet.
+        #expect(!SessionRestore.restoredSessionIsGone(
+            restoredSessionId: "last",
+            currentSessionId: "fresh",
+            projectId: projectId,
+            summaries: []
+        ))
+        // Nothing was restored by the tab switch.
+        #expect(!SessionRestore.restoredSessionIsGone(
+            restoredSessionId: nil,
+            currentSessionId: "fresh",
+            projectId: projectId,
+            summaries: []
+        ))
+        // The user went back to a new chat.
+        #expect(!SessionRestore.restoredSessionIsGone(
+            restoredSessionId: "last",
+            currentSessionId: nil,
+            projectId: projectId,
+            summaries: []
+        ))
+    }
+}

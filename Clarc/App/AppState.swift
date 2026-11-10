@@ -1959,13 +1959,30 @@ final class AppState {
             }
         }
 
+        // Open the project's last session straight from the summaries already
+        // in memory, so the tab never shows an empty new chat first.
+        // loadSessionHistory re-reads the summaries and falls back to a new
+        // chat if this session's file is gone.
+        let restored = SessionRestore.sessionToRestore(
+            project: project,
+            currentSessionId: nil,
+            summaries: allSessionSummaries,
+            restoreLastSession: restoreLastSession
+        )
+
         // animation: nil — all mutations land in the same frame; sessionStates.filter fires
         // one @Observable notification instead of N removeValue calls.
         withAnimation(nil) {
             window.selectedProject = project
             sessionStates = sessionStates.filter { $0.value.isStreaming }
             window.currentSessionId = nil
-            startNewChat(in: window)
+            if let restored {
+                switchToSession(restored.makeSession(), in: window)
+                window.requestInputFocus = true
+            } else {
+                startNewChat(in: window)
+            }
+            window.restoredSessionId = restored?.id
         }
 
         UserDefaults.standard.set(project.id.uuidString, forKey: "selectedProjectId")
@@ -2238,6 +2255,21 @@ final class AppState {
     func loadSessionHistory(in window: WindowState, restoreLastSession: Bool = true) async {
         guard let project = window.selectedProject else { return }
         await reloadSessionSummaries(for: project)
+
+        // The session selectProject restored from in-memory summaries may have
+        // been deleted outside the app: fall back to a new chat.
+        if let restoredId = window.restoredSessionId {
+            window.restoredSessionId = nil
+            if SessionRestore.restoredSessionIsGone(
+                restoredSessionId: restoredId,
+                currentSessionId: window.currentSessionId,
+                projectId: project.id,
+                summaries: allSessionSummaries
+            ) {
+                startNewChat(in: window)
+                return
+            }
+        }
 
         // Restore the last-used session when entering a project in new-chat state
         // so the status bar shows persisted stats immediately. No didSwitchToSession
@@ -2717,16 +2749,14 @@ final class AppState {
         window.setSessionSwitchTask(Task { [weak self] in
             guard let self else { return }
             guard !Task.isCancelled else { return }
-            selectProject(project, in: window)
+            // No last-session restore: the selected session replaces it, and a
+            // restore would parse a second file. switchToSession loads the
+            // transcript once through reloadCommittedFromDisk.
+            selectProject(project, in: window, restoreLastSession: false)
             guard !Task.isCancelled else { return }
             if let s = allSessionSummaries.first(where: { $0.id == id }) {
                 let session = s.makeSession()
-                if sessionStates[session.id] == nil,
-                   let full = await persistence.loadFullSession(summary: s, cwd: project.path) {
-                    switchToSession(full, messages: full.messages, in: window)
-                } else {
-                    switchToSession(session, in: window)
-                }
+                switchToSession(session, in: window)
                 window.requestInputFocus = true
                 await didSwitchToSession(session)
             }
@@ -2826,6 +2856,9 @@ final class AppState {
             )
     }
 
+    /// Session files larger than this show their tail before the full parse.
+    nonisolated private static let tailFirstThresholdBytes: UInt64 = 2 * 1024 * 1024
+
     /// Reloads committed messages from the CLI's jsonl, unconditionally replacing
     /// `committedMessages`. Skipped only when the session is actively streaming
     /// (tail holds the in-progress turn). Safe to call from any trigger.
@@ -2847,6 +2880,23 @@ final class AppState {
             if let lastKey, let currentSize, let currentMtime,
                ReloadCacheKey(size: currentSize, mtime: currentMtime) == lastKey {
                 return
+            }
+
+            // Large session with nothing shown yet: show its end first, then
+            // load the whole file below. The reload key is written only after
+            // the full load, so a reload triggered meanwhile (e.g. `.result`
+            // after a message sent during the load) still reads the file.
+            if let currentSize, currentSize > Self.tailFirstThresholdBytes,
+               await self.sessionStates[sessionId]?.committedMessages.isEmpty == true,
+               let tail = await self.persistence.loadSessionTail(summary: summary, cwd: cwd) {
+                let cleanedTail = await self.cleanLoadedMessages(tail.messages)
+                await MainActor.run {
+                    guard var state = self.sessionStates[sessionId],
+                          !state.isStreaming,
+                          state.committedMessages.isEmpty else { return }
+                    state.committedMessages = cleanedTail
+                    self.sessionStates[sessionId] = state
+                }
             }
 
             guard let full = await self.persistence.loadFullSession(summary: summary, cwd: cwd) else { return }

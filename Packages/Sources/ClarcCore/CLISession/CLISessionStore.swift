@@ -7,6 +7,9 @@ import os
 public actor CLISessionStore {
 
     private let metaStore: SessionMetaStore
+    /// Root of the CLI projects tree (`~/.claude/projects` by default).
+    /// Injectable so tests can point the store at a temporary directory.
+    private let projectsRoot: URL
     private let logger = Logger(subsystem: "com.claudework", category: "CLISessionStore")
 
     private static let titleSniffLineLimit = 400
@@ -53,8 +56,9 @@ public actor CLISessionStore {
         }
     }()
 
-    public init(metaStore: SessionMetaStore) {
+    public init(metaStore: SessionMetaStore, projectsRoot: URL = CLIProjectsDirectory.url) {
         self.metaStore = metaStore
+        self.projectsRoot = projectsRoot
     }
 
     // MARK: - Discovery
@@ -66,7 +70,7 @@ public actor CLISessionStore {
     public func directory(forCwd cwd: String) async -> URL {
         await ensureCwdIndex()
         if let url = cwdIndex[cwd.standardizedCwd()] { return url }
-        return CLIProjectsDirectory.directory(forCwd: cwd)
+        return projectsRoot.appendingPathComponent(cwd.cliProjectDirName(), isDirectory: true)
     }
 
     public func sessionFiles(forCwd cwd: String) async -> [URL] {
@@ -88,7 +92,6 @@ public actor CLISessionStore {
            Date().timeIntervalSince(builtAt) < Self.cwdIndexTTL {
             return
         }
-        let projectsRoot = CLIProjectsDirectory.url
         guard let dirs = try? FileManager.default.contentsOfDirectory(
             at: projectsRoot,
             includingPropertiesForKeys: [.isDirectoryKey],
@@ -183,7 +186,7 @@ public actor CLISessionStore {
     public func discoveredCwds() -> [DiscoveredCwd] {
         let fm = FileManager.default
         guard let dirs = try? fm.contentsOfDirectory(
-            at: CLIProjectsDirectory.url,
+            at: projectsRoot,
             includingPropertiesForKeys: [.isDirectoryKey],
             options: .skipsHiddenFiles
         ) else { return [] }
@@ -263,8 +266,8 @@ public actor CLISessionStore {
             }
             let title: String = {
                 if let t = meta.title, !t.isEmpty { return t }
-                if let t = snippet.latestAITitle, !t.isEmpty { return shortTitle(from: t) }
-                if let t = snippet.firstUserText, !t.isEmpty { return shortTitle(from: t) }
+                if let t = snippet.latestAITitle, !t.isEmpty { return Self.shortTitle(from: t) }
+                if let t = snippet.firstUserText, !t.isEmpty { return Self.shortTitle(from: t) }
                 return ChatSession.defaultTitle
             }()
             summaries.append(ChatSession.Summary(
@@ -402,75 +405,270 @@ public actor CLISessionStore {
         return maxDate
     }
 
-    private func shortTitle(from text: String) -> String {
+    private nonisolated static func shortTitle(from text: String) -> String {
         let firstLine = text.split(whereSeparator: { $0.isNewline }).first.map(String.init) ?? text
         return String(firstLine.prefix(80))
     }
 
     // MARK: - Full session load
 
-    /// Stream-parse the full jsonl into a `ChatSession`. Memory footprint is
-    /// roughly proportional to rendered content (thinking blocks dropped at
-    /// decode time). `projectId` is supplied by the caller because the session
-    /// jsonl itself doesn't carry the Clarc project UUID.
+    private static let loadLogger = Logger(subsystem: "com.claudework", category: "CLISessionStore")
+
+    /// Transcript read from a session jsonl, before Clarc's sidecar metadata
+    /// (title, pin, model…) is applied.
+    struct ParsedTranscript: Sendable {
+        var messages: [ChatMessage]
+        var firstTimestamp: Date?
+        var latestAITitle: String?
+    }
+
+    /// Recently parsed transcripts, keyed by sid and the file's size and
+    /// modification date. Sidecar metadata is applied on every load, so a
+    /// rename or pin never comes back stale from here.
+    private var parsedCache = ParsedSessionCache<ParsedTranscript>()
+
+    /// Parse the full jsonl into a `ChatSession`. Memory footprint is roughly
+    /// proportional to rendered content (thinking signatures dropped at decode
+    /// time). `projectId` is supplied by the caller because the session jsonl
+    /// itself doesn't carry the Clarc project UUID.
+    ///
+    /// Reading and parsing run off the actor (`readTranscript`), so a large
+    /// file doesn't hold up summaries, project discovery or path lookups. An
+    /// unchanged file is served from `parsedCache` without reading it.
     public func loadFullSession(
         sid: String,
         cwd: String,
         projectId: UUID
     ) async -> ChatSession? {
         let url = await jsonlURL(sid: sid, cwd: cwd)
+        // Stamp the file before reading it: if it grows during the read, the
+        // cached transcript holds more than the stamp says and the next load
+        // sees a new stamp and parses again — never the other way round.
+        let stamp = Self.fileStamp(of: url)
+        let transcript: ParsedTranscript
+        if let stamp, let cached = parsedCache.value(for: sid, stamp: stamp) {
+            transcript = cached
+        } else {
+            guard let parsed = await Self.readTranscript(at: url) else {
+                parsedCache.removeValue(for: sid)
+                return nil
+            }
+            if let stamp {
+                parsedCache.insert(parsed, for: sid, stamp: stamp)
+            }
+            transcript = parsed
+        }
+        let meta = await metaStore.load(sessionId: sid)
+        return Self.makeSession(
+            sid: sid,
+            projectId: projectId,
+            transcript: transcript,
+            updatedAt: stamp?.modificationDate ?? mtime(of: url) ?? Date(),
+            meta: meta
+        )
+    }
 
-        var lines: [CLISessionLine] = []
-        var firstTimestamp: Date?
-        var latestAITitle: String?
+    // MARK: - Tail load
 
-        // Bulk-read the jsonl in one shot. The earlier `for try await rawLine
-        // in url.lines` walked the file via AsyncBytes which produced a
-        // userland byte-by-byte pipeline — fine for streaming consumption,
-        // but ~order-of-magnitude slower than mmap+split for a finished
-        // session that fits in memory. The session-switch click waits on this
-        // call, so the difference is the gap between "messages appear
-        // instantly" and "messages appear noticeably late".
+    /// Parse only the end of the jsonl: at least `minMessages` transcript
+    /// messages, or the whole file if it has fewer. Lets a large session show
+    /// its latest messages before `loadFullSession` has parsed everything.
+    ///
+    /// Reads the last `initialWindow` bytes and doubles the window until it
+    /// holds enough messages or reaches the start of the file. The partial
+    /// first line of a window is dropped; a tool result whose call lies before
+    /// the window is dropped by the mapper. Message ids match the full load,
+    /// so the tail is exactly the end of the full transcript. Runs off the
+    /// actor like the full load, and is never cached.
+    public func loadSessionTail(
+        sid: String,
+        cwd: String,
+        projectId: UUID,
+        minMessages: Int = 40,
+        initialWindow: Int = 512 * 1024
+    ) async -> ChatSession? {
+        let url = await jsonlURL(sid: sid, cwd: cwd)
+        guard let transcript = await Self.readTranscriptTail(
+            at: url,
+            minMessages: minMessages,
+            initialWindow: initialWindow
+        ) else { return nil }
+        let meta = await metaStore.load(sessionId: sid)
+        return Self.makeSession(
+            sid: sid,
+            projectId: projectId,
+            transcript: transcript,
+            updatedAt: mtime(of: url) ?? Date(),
+            meta: meta
+        )
+    }
+
+    @concurrent
+    nonisolated static func readTranscriptTail(
+        at url: URL,
+        minMessages: Int,
+        initialWindow: Int
+    ) async -> ParsedTranscript? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        // Fix the end once: bytes appended while reading belong to the full load.
+        guard let end = try? handle.seekToEnd(), end > 0 else { return nil }
+
+        var window = UInt64(max(initialWindow, 1))
+        while true {
+            let start = end > window ? end - window : 0
+            // Read one byte before the window so a window that starts exactly
+            // at a line boundary keeps that line.
+            let readFrom = start > 0 ? start - 1 : 0
+            guard (try? handle.seek(toOffset: readFrom)) != nil,
+                  let data = try? handle.read(upToCount: Int(end - readFrom)) else { return nil }
+
+            var body = data[...]
+            if start > 0 {
+                // Drop the cut first line. It may end inside a UTF-8 sequence,
+                // but `\n` never occurs inside one, so the rest is intact.
+                guard let newline = body.firstIndex(of: 0x0A) else {
+                    window *= 2
+                    continue
+                }
+                body = body[body.index(after: newline)...]
+            }
+
+            let transcript = parseTranscript(body)
+            if start == 0 || (transcript?.messages.count ?? 0) >= minMessages {
+                return transcript
+            }
+            window *= 2
+        }
+    }
+
+    /// Size and modification date of a file, or nil if it can't be read.
+    nonisolated static func fileStamp(of url: URL) -> ParsedSessionCache<ParsedTranscript>.Stamp? {
+        guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let size = (attrs[.size] as? NSNumber)?.uint64Value,
+              let date = attrs[.modificationDate] as? Date else { return nil }
+        return .init(size: size, modificationDate: date)
+    }
+
+    /// Bulk-read the whole jsonl and parse it. `@concurrent` keeps the work on
+    /// the global executor instead of the store actor.
+    ///
+    /// The file is read in one shot: the earlier `for try await rawLine in
+    /// url.lines` walked it via AsyncBytes, a userland byte-by-byte pipeline
+    /// roughly an order of magnitude slower than mmap+split for a finished
+    /// session.
+    @concurrent
+    nonisolated static func readTranscript(at url: URL) async -> ParsedTranscript? {
         let data: Data
         do {
             data = try Data(contentsOf: url, options: .mappedIfSafe)
         } catch {
-            logger.debug("loadFullSession read error for \(sid, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            loadLogger.debug("loadFullSession read error for \(url.lastPathComponent, privacy: .public): \(error.localizedDescription, privacy: .public)")
             return nil
         }
-        // Tolerate an in-flight final write (jsonl is append-only) — the trailing
-        // partial line fails JSON decode and is silently skipped, satisfying S1.
-        let content = String(data: data, encoding: .utf8) ?? ""
-        for sub in content.split(separator: "\n", omittingEmptySubsequences: true) {
-            let rawLine = String(sub)
-            guard let lineData = rawLine.data(using: .utf8) else { continue }
+        return parseTranscript(data)
+    }
 
-            if rawLine.contains("\"type\":\"ai-title\""),
-               let title = try? decoder.decode(AITitleLine.self, from: lineData).aiTitle,
-               !title.isEmpty {
-                latestAITitle = title
-                continue
-            }
+    /// Parse jsonl bytes into a transcript. Lines the transcript never shows
+    /// are dropped before JSON decoding (`CLISessionLineFilter`). A trailing
+    /// partial line (in-flight append) or any other undecodable line is
+    /// skipped on its own; the rest of the file still loads. Returns nil when
+    /// the data holds no session record at all.
+    nonisolated static func parseTranscript(_ data: Data) -> ParsedTranscript? {
+        let decoder = makeDecoder()
+        var lines: [CLISessionLine] = []
+        var sawRecord = false
+        var firstTimestamp: Date?
+        var latestAITitle: String?
 
-            guard let decoded = try? decoder.decode(CLISessionLine.self, from: lineData) else { continue }
-            if firstTimestamp == nil {
-                switch decoded {
-                case .user(let u): firstTimestamp = u.timestamp
-                case .assistant(let a): firstTimestamp = a.timestamp
-                case .skip: break
+        data.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
+            forEachLine(in: buffer) { line in
+                guard CLISessionLineFilter.needsDecoding(line) else {
+                    // Dropped service lines used to decode as `.skip`; keep
+                    // counting them so a file of only such lines still loads
+                    // as an empty session rather than as a missing one.
+                    if looksLikeRecord(line) { sawRecord = true }
+                    return
                 }
+                let lineData = Data(line)
+
+                if CLISessionLineFilter.contains(line, aiTitleMarker),
+                   let title = try? decoder.decode(AITitleLine.self, from: lineData).aiTitle,
+                   !title.isEmpty {
+                    latestAITitle = title
+                    return
+                }
+
+                guard let decoded = try? decoder.decode(CLISessionLine.self, from: lineData) else { return }
+                if firstTimestamp == nil {
+                    switch decoded {
+                    case .user(let u): firstTimestamp = u.timestamp
+                    case .assistant(let a): firstTimestamp = a.timestamp
+                    case .skip: break
+                    }
+                }
+                sawRecord = true
+                lines.append(decoded)
             }
-            lines.append(decoded)
         }
-        guard !lines.isEmpty else { return nil }
+        guard sawRecord else { return nil }
 
-        let messages = CLILineToBlocksMapper.map(lines: lines)
-        let mtimeDate = mtime(of: url) ?? Date()
-        let meta = await metaStore.load(sessionId: sid)
+        return ParsedTranscript(
+            messages: CLILineToBlocksMapper.map(lines: lines),
+            firstTimestamp: firstTimestamp,
+            latestAITitle: latestAITitle
+        )
+    }
 
+    private static let aiTitleMarker: [UInt8] = Array(#""type":"ai-title""#.utf8)
+
+    /// Calls `body` with each non-empty `\n`-separated line of `buffer`.
+    private nonisolated static func forEachLine(
+        in buffer: UnsafeRawBufferPointer,
+        _ body: (UnsafeRawBufferPointer) -> Void
+    ) {
+        guard let base = buffer.baseAddress else { return }
+        var start = 0
+        let count = buffer.count
+        while start < count {
+            let end: Int
+            if let nl = memchr(base + start, 0x0A, count - start) {
+                end = base.distance(to: UnsafeRawPointer(nl))
+            } else {
+                end = count
+            }
+            if end > start {
+                body(UnsafeRawBufferPointer(start: base + start, count: end - start))
+            }
+            start = end + 1
+        }
+    }
+
+    /// True if the bytes look like one JSON object (`{…}` up to whitespace).
+    private nonisolated static func looksLikeRecord(_ line: UnsafeRawBufferPointer) -> Bool {
+        let isSpace: (UInt8) -> Bool = { $0 == 0x20 || $0 == 0x09 || $0 == 0x0D }
+        guard let first = line.first(where: { !isSpace($0) }),
+              let last = line.last(where: { !isSpace($0) }) else { return false }
+        return first == UInt8(ascii: "{") && last == UInt8(ascii: "}")
+    }
+
+    private nonisolated static func makeDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = dateStrategy
+        return decoder
+    }
+
+    private nonisolated static func makeSession(
+        sid: String,
+        projectId: UUID,
+        transcript: ParsedTranscript,
+        updatedAt: Date,
+        meta: SessionMetaStore.Meta
+    ) -> ChatSession {
+        let messages = transcript.messages
         let title: String = {
             if let t = meta.title, !t.isEmpty { return t }
-            if let t = latestAITitle, !t.isEmpty { return shortTitle(from: t) }
+            if let t = transcript.latestAITitle, !t.isEmpty { return shortTitle(from: t) }
             if let firstUser = messages.first(where: { $0.role == .user })?.content,
                !firstUser.isEmpty {
                 return shortTitle(from: firstUser)
@@ -483,8 +681,8 @@ public actor CLISessionStore {
             projectId: projectId,
             title: title,
             messages: messages,
-            createdAt: firstTimestamp ?? mtimeDate,
-            updatedAt: mtimeDate,
+            createdAt: transcript.firstTimestamp ?? updatedAt,
+            updatedAt: updatedAt,
             isPinned: meta.isPinned,
             model: meta.model,
             effort: meta.effort,
@@ -665,7 +863,7 @@ public actor CLISessionStore {
         cwd: String,
         withinSeconds window: TimeInterval
     ) -> Bool {
-        let url = CLIProjectsDirectory.directory(forCwd: cwd)
+        let url = projectsRoot.appendingPathComponent(cwd.cliProjectDirName(), isDirectory: true)
             .appendingPathComponent("\(sid).jsonl")
         guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
               let mtime = attrs[.modificationDate] as? Date else {
