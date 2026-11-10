@@ -133,6 +133,10 @@
 "Unpin" = "ピン留めを解除";
 "Pin" = "ピン留め";
 "No chat history" = "セッションがありません";
+"New Session" = "新規セッション";
+"No sessions" = "セッションがありません";
+"Other" = "その他";
+"New Session in %@" = "%@で新規セッション";
 
 // MARK: - GitStatusView
 "Checking..." = "確認中...";

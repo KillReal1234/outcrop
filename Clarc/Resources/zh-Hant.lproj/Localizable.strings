@@ -133,6 +133,10 @@
 "Unpin" = "取消釘選";
 "Pin" = "釘選";
 "No chat history" = "無會話";
+"New Session" = "新增會話";
+"No sessions" = "無會話";
+"Other" = "其他";
+"New Session in %@" = "在 %@ 中新增會話";
 
 // MARK: - GitStatusView
 "Checking..." = "正在檢查...";

@@ -133,6 +133,10 @@
 "Unpin" = "고정 해제";
 "Pin" = "고정";
 "No chat history" = "세션 없음";
+"New Session" = "새 세션";
+"No sessions" = "세션 없음";
+"Other" = "기타";
+"New Session in %@" = "%@에서 새 세션";
 
 // MARK: - GitStatusView
 "Checking..." = "확인 중...";

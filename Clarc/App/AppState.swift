@@ -1894,7 +1894,7 @@ final class AppState {
         }
     }
 
-    func selectProject(_ project: Project, in window: WindowState) {
+    func selectProject(_ project: Project, in window: WindowState, restoreLastSession: Bool = true) {
         guard window.selectedProject?.id != project.id else { return }
 
         if isStreaming(in: window) {
@@ -1928,7 +1928,7 @@ final class AppState {
         // Refresh session history in the background
         Task { [weak self] in
             guard let self else { return }
-            await loadSessionHistory(in: window)
+            await loadSessionHistory(in: window, restoreLastSession: restoreLastSession)
         }
     }
 
@@ -2065,7 +2065,7 @@ final class AppState {
     }
 
     /// Load/refresh the project's session list into allSessionSummaries
-    func loadSessionHistory(in window: WindowState) async {
+    func loadSessionHistory(in window: WindowState, restoreLastSession: Bool = true) async {
         guard let project = window.selectedProject else { return }
         await reloadSessionSummaries(for: project)
 
@@ -2073,9 +2073,7 @@ final class AppState {
         // so the status bar shows persisted stats immediately. No didSwitchToSession
         // here — the project's lastSessionId already points at this session, so
         // persisting it again would be a redundant projects-array write.
-        if window.currentSessionId == nil,
-           let lastId = project.lastSessionId,
-           let summary = allSessionSummaries.first(where: { $0.id == lastId && $0.projectId == project.id }) {
+        if let summary = SessionRestore.sessionToRestore(project: project, currentSessionId: window.currentSessionId, summaries: allSessionSummaries, restoreLastSession: restoreLastSession) {
             switchToSession(summary.makeSession(), in: window)
         }
     }
