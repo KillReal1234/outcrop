@@ -111,9 +111,10 @@ struct HistoryListView: View {
         // paints its system-accent highlight. We track selection ourselves and
         // draw the selected row with the theme color via `.listRowBackground`.
         let visible = sessions
+        let multiSelection = orderedMultiSelection(in: visible)
         return List {
             ForEach(visible) { session in
-                sessionItem(session, visible: visible)
+                sessionItem(session, multiSelection: multiSelection)
             }
         }
         .listStyle(.sidebar)
@@ -129,6 +130,7 @@ struct HistoryListView: View {
         // instead of regrouping every session per row.
         let visible = SessionGrouping.visibleSessions(in: groups, collapsed: collapsedProjectIds)
             .map(DisplaySession.init)
+        let multiSelection = orderedMultiSelection(in: visible)
         return List {
             NewSessionRow()
 
@@ -140,7 +142,7 @@ struct HistoryListView: View {
                             noSessionsRow
                         } else {
                             ForEach(group.sessions) { summary in
-                                sessionItem(DisplaySession(summary), visible: visible)
+                                sessionItem(DisplaySession(summary), multiSelection: multiSelection)
                             }
                         }
                     }
@@ -169,12 +171,40 @@ struct HistoryListView: View {
         }
     }
 
-    private func sessionItem(_ session: DisplaySession, visible: [DisplaySession]) -> some View {
-        sessionRow(session)
-            .listRowBackground(rowBackground(for: session))
-            .contentShape(Rectangle())
-            .onTapGesture { handleTap(session) }
-            .contextMenu { sessionContextMenu(for: session, visible: visible) }
+    /// One list row. Inputs are plain values, so `.equatable()` skips rows
+    /// whose session, selection state and menu targets did not change.
+    private func sessionItem(_ session: DisplaySession, multiSelection: [DisplaySession]) -> some View {
+        let isSelected = selection.contains(session.id)
+        return SessionRowView(
+            session: session,
+            isSelected: isSelected,
+            menuTargets: isSelected && !multiSelection.isEmpty ? multiSelection : [session],
+            onTap: { handleTap(session) },
+            onToggleComplete: { completeTapped(session) },
+            onRename: { target in
+                renameText = target.title
+                renamingSession = chatSession(for: target.id)
+            },
+            onPin: { targets, pin in
+                Task { await applyPin(to: targets, pin: pin) }
+            },
+            onComplete: { targets, complete in
+                Task { await applyComplete(to: targets, complete: complete) }
+            },
+            onDelete: { targets in
+                Task { await deleteSessions(targets) }
+            }
+        )
+        .equatable()
+        .listRowBackground(SessionRowView.selectionBackground(isSelected: isSelected))
+    }
+
+    /// Context-menu targets shared by every selected row: the selection in
+    /// on-screen order when several rows are selected, otherwise empty (a
+    /// lone or unselected row targets only itself). Computed once per render.
+    private func orderedMultiSelection(in visible: [DisplaySession]) -> [DisplaySession] {
+        guard selection.count > 1 else { return [] }
+        return visible.filter { selection.contains($0.id) }
     }
 
     private var noSessionsRow: some View {
@@ -224,16 +254,6 @@ struct HistoryListView: View {
         appState.startNewChat(in: windowState)
     }
 
-    /// Selected-row background painted in the theme color, inset into a pill.
-    @ViewBuilder
-    private func rowBackground(for session: DisplaySession) -> some View {
-        if selection.contains(session.id) {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(ClaudeTheme.sidebarItemSelected)
-                .padding(.horizontal, 8)
-        }
-    }
-
     /// Resolve a click into single open / cmd-toggle / shift-range selection.
     private func handleTap(_ session: DisplaySession) {
         let flags = NSEvent.modifierFlags
@@ -256,12 +276,6 @@ struct HistoryListView: View {
         }
     }
 
-    /// Right-click targets: the whole selection if the clicked row is part of
-    /// it, otherwise just the clicked row.
-    private func contextTargets(for session: DisplaySession) -> Set<String> {
-        selection.contains(session.id) ? selection : [session.id]
-    }
-
     /// Mirror the open session into `selection` unless the user is mid
     /// multi-selection, in which case their choice must not be clobbered.
     private func syncSelectionToCurrent(_ id: String?) {
@@ -270,96 +284,7 @@ struct HistoryListView: View {
         selectionAnchor = id
     }
 
-    private func sessionRow(_ session: DisplaySession) -> some View {
-        HStack(spacing: 6) {
-            Button {
-                completeTapped(session)
-            } label: {
-                Image(systemName: session.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: ClaudeTheme.size(14)))
-                    .foregroundStyle(session.isCompleted ? ClaudeTheme.accent : ClaudeTheme.textTertiary)
-                    .contentTransition(.symbolEffect(.replace))
-            }
-            .buttonStyle(.borderless)
-            .help(session.isCompleted ? "Mark as Incomplete" : "Mark as Complete")
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(session.title)
-                    .font(.system(size: ClaudeTheme.size(13)))
-                    .foregroundStyle(ClaudeTheme.textPrimary.opacity(session.isCompleted ? 0.45 : 0.9))
-                    .strikethrough(session.isCompleted, color: ClaudeTheme.textTertiary)
-                    .lineLimit(1)
-
-                Text(formattedDate(session.updatedAt))
-                    .font(.system(size: ClaudeTheme.size(11)))
-                    .foregroundStyle(ClaudeTheme.textTertiary)
-            }
-
-            Spacer()
-
-            StreamingIndicator(sessionId: session.id)
-
-            if session.isPinned {
-                Image(systemName: "pin.fill")
-                    .font(.system(size: ClaudeTheme.size(9)))
-                    .foregroundStyle(ClaudeTheme.textTertiary)
-            }
-        }
-        .padding(.vertical, 2)
-    }
-
-    // MARK: - Context Menu
-
-    /// Context menu for the right-clicked row. Targets are the full selection
-    /// when right-clicking a selected row, or just the clicked row otherwise.
-    /// `visible` is the precomputed on-screen list, filtered only for a
-    /// multi-selection so targets keep on-screen order. Rename is hidden for
-    /// multi-selections; pin/complete/delete apply to every targeted session.
-    @ViewBuilder
-    private func sessionContextMenu(for session: DisplaySession, visible: [DisplaySession]) -> some View {
-        let ids = contextTargets(for: session)
-        let targets = ids.count == 1 && ids.contains(session.id)
-            ? [session]
-            : visible.filter { ids.contains($0.id) }
-        if !targets.isEmpty {
-            if targets.count == 1, let only = targets.first {
-                Button {
-                    renameText = only.title
-                    renamingSession = chatSession(for: only.id)
-                } label: {
-                    Label("Rename", systemImage: "pencil")
-                }
-            }
-
-            let allPinned = targets.allSatisfy { $0.isPinned }
-            Button {
-                Task { await applyPin(to: targets, pin: !allPinned) }
-            } label: {
-                Label(allPinned ? "Unpin" : "Pin", systemImage: allPinned ? "pin.slash" : "pin")
-            }
-
-            let allCompleted = targets.allSatisfy { $0.isCompleted }
-            Button {
-                Task { await applyComplete(to: targets, complete: !allCompleted) }
-            } label: {
-                Label(
-                    allCompleted ? "Mark as Incomplete" : "Mark as Complete",
-                    systemImage: allCompleted ? "circle" : "checkmark.circle"
-                )
-            }
-
-            Divider()
-
-            Button(role: .destructive) {
-                Task { await deleteSessions(targets) }
-            } label: {
-                Label(
-                    targets.count > 1 ? "Delete \(targets.count) Sessions" : "Delete",
-                    systemImage: "trash"
-                )
-            }
-        }
-    }
+    // MARK: - Actions
 
     private func chatSession(for id: String) -> ChatSession? {
         appState.allSessionSummaries.first(where: { $0.id == id })?.makeSession()
@@ -480,16 +405,141 @@ struct HistoryListView: View {
             set: { if !$0 { renamingSession = nil } }
         )
     }
+}
 
-    private static let relativeDateFormatter: RelativeDateTimeFormatter = {
-        let f = RelativeDateTimeFormatter()
-        f.locale = .current
-        f.unitsStyle = .abbreviated
-        return f
-    }()
+// MARK: - Session Row
 
-    private func formattedDate(_ date: Date) -> String {
-        Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+extension HistoryListView {
+    /// One session row: completion toggle, title, relative date, background
+    /// streaming spinner and pin, plus click handling and the context menu.
+    /// Inputs compared in `==` are plain values; actions are closures and take
+    /// no part in the comparison. With `.equatable()` a sidebar re-render only
+    /// rebuilds rows whose session, selection state or menu targets changed.
+    /// Reads no environment itself (only `StreamingIndicator` observes state).
+    private struct SessionRowView: View, Equatable {
+        let session: DisplaySession
+        let isSelected: Bool
+        /// Context-menu targets in on-screen order: the whole multi-selection
+        /// for a row inside it, otherwise just this row.
+        let menuTargets: [DisplaySession]
+
+        let onTap: () -> Void
+        let onToggleComplete: () -> Void
+        let onRename: (DisplaySession) -> Void
+        let onPin: ([DisplaySession], Bool) -> Void
+        let onComplete: ([DisplaySession], Bool) -> Void
+        let onDelete: ([DisplaySession]) -> Void
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.session == rhs.session
+                && lhs.isSelected == rhs.isSelected
+                && lhs.menuTargets == rhs.menuTargets
+        }
+
+        var body: some View {
+            HStack(spacing: 6) {
+                Button(action: onToggleComplete) {
+                    Image(systemName: session.isCompleted ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: ClaudeTheme.size(14)))
+                        .foregroundStyle(session.isCompleted ? ClaudeTheme.accent : ClaudeTheme.textTertiary)
+                        .contentTransition(.symbolEffect(.replace))
+                }
+                .buttonStyle(.borderless)
+                .help(session.isCompleted ? "Mark as Incomplete" : "Mark as Complete")
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(session.title)
+                        .font(.system(size: ClaudeTheme.size(13)))
+                        .foregroundStyle(ClaudeTheme.textPrimary.opacity(session.isCompleted ? 0.45 : 0.9))
+                        .strikethrough(session.isCompleted, color: ClaudeTheme.textTertiary)
+                        .lineLimit(1)
+
+                    Text(Self.formattedDate(session.updatedAt))
+                        .font(.system(size: ClaudeTheme.size(11)))
+                        .foregroundStyle(ClaudeTheme.textTertiary)
+                }
+
+                Spacer()
+
+                StreamingIndicator(sessionId: session.id)
+
+                if session.isPinned {
+                    Image(systemName: "pin.fill")
+                        .font(.system(size: ClaudeTheme.size(9)))
+                        .foregroundStyle(ClaudeTheme.textTertiary)
+                }
+            }
+            .padding(.vertical, 2)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onTap)
+            .contextMenu { contextMenu }
+        }
+
+        /// Selected-row background painted in the theme color, inset into a
+        /// pill. Applied by the list as `.listRowBackground`.
+        @ViewBuilder
+        static func selectionBackground(isSelected: Bool) -> some View {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(ClaudeTheme.sidebarItemSelected)
+                    .padding(.horizontal, 8)
+            }
+        }
+
+        /// Rename is hidden for multi-selections; pin/complete/delete apply to
+        /// every target.
+        @ViewBuilder
+        private var contextMenu: some View {
+            let targets = menuTargets
+            if !targets.isEmpty {
+                if targets.count == 1, let only = targets.first {
+                    Button {
+                        onRename(only)
+                    } label: {
+                        Label("Rename", systemImage: "pencil")
+                    }
+                }
+
+                let allPinned = targets.allSatisfy { $0.isPinned }
+                Button {
+                    onPin(targets, !allPinned)
+                } label: {
+                    Label(allPinned ? "Unpin" : "Pin", systemImage: allPinned ? "pin.slash" : "pin")
+                }
+
+                let allCompleted = targets.allSatisfy { $0.isCompleted }
+                Button {
+                    onComplete(targets, !allCompleted)
+                } label: {
+                    Label(
+                        allCompleted ? "Mark as Incomplete" : "Mark as Complete",
+                        systemImage: allCompleted ? "circle" : "checkmark.circle"
+                    )
+                }
+
+                Divider()
+
+                Button(role: .destructive) {
+                    onDelete(targets)
+                } label: {
+                    Label(
+                        targets.count > 1 ? "Delete \(targets.count) Sessions" : "Delete",
+                        systemImage: "trash"
+                    )
+                }
+            }
+        }
+
+        private static let relativeDateFormatter: RelativeDateTimeFormatter = {
+            let f = RelativeDateTimeFormatter()
+            f.locale = .current
+            f.unitsStyle = .abbreviated
+            return f
+        }()
+
+        private static func formattedDate(_ date: Date) -> String {
+            relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+        }
     }
 }
 
