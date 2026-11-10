@@ -468,6 +468,80 @@ public actor CLISessionStore {
         )
     }
 
+    // MARK: - Tail load
+
+    /// Parse only the end of the jsonl: at least `minMessages` transcript
+    /// messages, or the whole file if it has fewer. Lets a large session show
+    /// its latest messages before `loadFullSession` has parsed everything.
+    ///
+    /// Reads the last `initialWindow` bytes and doubles the window until it
+    /// holds enough messages or reaches the start of the file. The partial
+    /// first line of a window is dropped; a tool result whose call lies before
+    /// the window is dropped by the mapper. Message ids match the full load,
+    /// so the tail is exactly the end of the full transcript. Runs off the
+    /// actor like the full load, and is never cached.
+    public func loadSessionTail(
+        sid: String,
+        cwd: String,
+        projectId: UUID,
+        minMessages: Int = 40,
+        initialWindow: Int = 512 * 1024
+    ) async -> ChatSession? {
+        let url = await jsonlURL(sid: sid, cwd: cwd)
+        guard let transcript = await Self.readTranscriptTail(
+            at: url,
+            minMessages: minMessages,
+            initialWindow: initialWindow
+        ) else { return nil }
+        let meta = await metaStore.load(sessionId: sid)
+        return Self.makeSession(
+            sid: sid,
+            projectId: projectId,
+            transcript: transcript,
+            updatedAt: mtime(of: url) ?? Date(),
+            meta: meta
+        )
+    }
+
+    @concurrent
+    nonisolated static func readTranscriptTail(
+        at url: URL,
+        minMessages: Int,
+        initialWindow: Int
+    ) async -> ParsedTranscript? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        // Fix the end once: bytes appended while reading belong to the full load.
+        guard let end = try? handle.seekToEnd(), end > 0 else { return nil }
+
+        var window = UInt64(max(initialWindow, 1))
+        while true {
+            let start = end > window ? end - window : 0
+            // Read one byte before the window so a window that starts exactly
+            // at a line boundary keeps that line.
+            let readFrom = start > 0 ? start - 1 : 0
+            guard (try? handle.seek(toOffset: readFrom)) != nil,
+                  let data = try? handle.read(upToCount: Int(end - readFrom)) else { return nil }
+
+            var body = data[...]
+            if start > 0 {
+                // Drop the cut first line. It may end inside a UTF-8 sequence,
+                // but `\n` never occurs inside one, so the rest is intact.
+                guard let newline = body.firstIndex(of: 0x0A) else {
+                    window *= 2
+                    continue
+                }
+                body = body[body.index(after: newline)...]
+            }
+
+            let transcript = parseTranscript(body)
+            if start == 0 || (transcript?.messages.count ?? 0) >= minMessages {
+                return transcript
+            }
+            window *= 2
+        }
+    }
+
     /// Size and modification date of a file, or nil if it can't be read.
     nonisolated static func fileStamp(of url: URL) -> ParsedSessionCache<ParsedTranscript>.Stamp? {
         guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),

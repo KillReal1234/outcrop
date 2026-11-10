@@ -2824,6 +2824,9 @@ final class AppState {
             )
     }
 
+    /// Session files larger than this show their tail before the full parse.
+    nonisolated private static let tailFirstThresholdBytes: UInt64 = 2 * 1024 * 1024
+
     /// Reloads committed messages from the CLI's jsonl, unconditionally replacing
     /// `committedMessages`. Skipped only when the session is actively streaming
     /// (tail holds the in-progress turn). Safe to call from any trigger.
@@ -2845,6 +2848,23 @@ final class AppState {
             if let lastKey, let currentSize, let currentMtime,
                ReloadCacheKey(size: currentSize, mtime: currentMtime) == lastKey {
                 return
+            }
+
+            // Large session with nothing shown yet: show its end first, then
+            // load the whole file below. The reload key is written only after
+            // the full load, so a reload triggered meanwhile (e.g. `.result`
+            // after a message sent during the load) still reads the file.
+            if let currentSize, currentSize > Self.tailFirstThresholdBytes,
+               await self.sessionStates[sessionId]?.committedMessages.isEmpty == true,
+               let tail = await self.persistence.loadSessionTail(summary: summary, cwd: cwd) {
+                let cleanedTail = await self.cleanLoadedMessages(tail.messages)
+                await MainActor.run {
+                    guard var state = self.sessionStates[sessionId],
+                          !state.isStreaming,
+                          state.committedMessages.isEmpty else { return }
+                    state.committedMessages = cleanedTail
+                    self.sessionStates[sessionId] = state
+                }
             }
 
             guard let full = await self.persistence.loadFullSession(summary: summary, cwd: cwd) else { return }

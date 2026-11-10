@@ -171,6 +171,104 @@ struct CLISessionLoadingTests {
     }
 }
 
+// The tail of a large session is shown before the whole file is parsed. Its
+// messages must be exactly the end of the full transcript, so the full load
+// only inserts earlier rows. Windows are tiny so no large files are needed.
+
+@Suite("CLISessionStore.loadSessionTail")
+struct CLISessionTailTests {
+
+    @Test func tailIsTheEndOfTheFullTranscript() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        try fixture.write(sessionLines(count: 30, text: "message "), sid: sid)
+
+        let full = try #require(await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId))
+        let tail = try #require(await fixture.store.loadSessionTail(
+            sid: sid, cwd: fixture.cwd, projectId: fixture.projectId, minMessages: 4, initialWindow: 256
+        ))
+
+        #expect(tail.messages.count >= 4)
+        #expect(tail.messages.count < full.messages.count)
+        #expect(tail.messages.map(\.id) == full.messages.suffix(tail.messages.count).map(\.id))
+        #expect(tail.messages == Array(full.messages.suffix(tail.messages.count)))
+    }
+
+    @Test func cutInsideLineAndInsideMultibyteCharacter() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        // Cyrillic letters are two bytes each; sweeping the window byte by
+        // byte lands the cut inside lines and inside characters.
+        try fixture.write(sessionLines(count: 12, text: "Сообщение номер "), sid: sid)
+
+        let full = try #require(await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId))
+        for window in stride(from: 200, through: 520, by: 1) {
+            let tail = try #require(await fixture.store.loadSessionTail(
+                sid: sid, cwd: fixture.cwd, projectId: fixture.projectId, minMessages: 2, initialWindow: window
+            ))
+            #expect(tail.messages.count >= 2)
+            #expect(tail.messages == Array(full.messages.suffix(tail.messages.count)), "window \(window)")
+            #expect(tail.messages.allSatisfy { !$0.blocks.isEmpty && !$0.content.isEmpty }, "window \(window)")
+        }
+    }
+
+    @Test func cutRightAfterToolCallDropsOrphanResult() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        let toolUse = #"{"type":"assistant","message":{"id":"m1","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_9","name":"Bash","input":{"command":"ls"}}]},"uuid":"30000000-0000-0000-0000-000000000001","timestamp":"2026-11-10T12:00:01.000Z"}"#
+        let toolResult = #"{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_9","content":"файл.txt"}]},"uuid":"30000000-0000-0000-0000-000000000002","timestamp":"2026-11-10T12:00:02.000Z"}"#
+        let answer = #"{"type":"assistant","message":{"id":"m2","type":"message","role":"assistant","content":[{"type":"text","text":"Один файл."}]},"uuid":"30000000-0000-0000-0000-000000000003","timestamp":"2026-11-10T12:00:03.000Z"}"#
+        let head = #"{"type":"user","message":{"role":"user","content":"Что в папке?"},"uuid":"30000000-0000-0000-0000-000000000000","timestamp":"2026-11-10T12:00:00.000Z"}"#
+        let text = [head, toolUse, toolResult, answer].joined(separator: "\n") + "\n"
+        try fixture.write(text, sid: sid)
+
+        // The window starts exactly at the tool result: the tool call is cut off.
+        let window = Data((toolResult + "\n" + answer + "\n").utf8).count
+        let tail = try #require(await fixture.store.loadSessionTail(
+            sid: sid, cwd: fixture.cwd, projectId: fixture.projectId, minMessages: 1, initialWindow: window
+        ))
+        #expect(tail.messages.count == 1)
+        #expect(tail.messages.first?.content == "Один файл.")
+        #expect(tail.messages.allSatisfy { $0.toolCalls.isEmpty && !$0.blocks.isEmpty })
+
+        let full = try #require(await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId))
+        #expect(full.messages[1].toolCalls.first?.result == "файл.txt")
+        #expect(tail.messages == Array(full.messages.suffix(1)))
+    }
+
+    @Test func tooFewMessagesExpandsToWholeFile() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        try fixture.write(sampleSession, sid: sid)
+
+        let full = try #require(await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId))
+        let tail = try #require(await fixture.store.loadSessionTail(
+            sid: sid, cwd: fixture.cwd, projectId: fixture.projectId, minMessages: 100, initialWindow: 256
+        ))
+        #expect(tail.messages == full.messages)
+    }
+
+    @Test func emptyAndMissingFiles_returnNil() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        try fixture.write("", sid: sid)
+
+        let empty = await fixture.store.loadSessionTail(
+            sid: sid, cwd: fixture.cwd, projectId: fixture.projectId, minMessages: 4, initialWindow: 256
+        )
+        #expect(empty == nil)
+        let missing = await fixture.store.loadSessionTail(
+            sid: "missing", cwd: fixture.cwd, projectId: fixture.projectId, minMessages: 4, initialWindow: 256
+        )
+        #expect(missing == nil)
+    }
+}
+
 /// `count` user/assistant pairs with texts `"\(text)\(i)"`, uuid-stable.
 private func sessionLines(count: Int, text: String) -> String {
     (0..<count).flatMap { i -> [String] in
