@@ -80,6 +80,26 @@ final class AppState {
 
     var projects: [Project] = []
 
+    /// Projects shown as tabs in the project tab strip, in tab order. Shared by
+    /// all windows and kept in UserDefaults (`OpenProjects.defaultsKey`).
+    private(set) var openProjects = OpenProjects()
+
+    /// Open projects in tab order.
+    var openProjectList: [Project] {
+        openProjects.ids.compactMap { id in projects.first(where: { $0.id == id }) }
+    }
+
+    /// Standardized paths of projects the user deleted; discovery skips them.
+    private var dismissedProjectPaths: [String] = []
+
+    /// Set once `projects.json` has been read, so discovery never runs against an empty list.
+    private var hasLoadedProjects = false
+    private var lastProjectDiscoveryAt: Date?
+    private var isDiscoveringProjects = false
+    private static let projectDiscoveryMinInterval: TimeInterval = 30
+    /// App tests run against the real data folder; discovery must not add projects there.
+    private static let isRunningUnderTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
     // MARK: - Per-Session State (shared — managed independently by session ID regardless of window)
 
     /// Independent state for all active sessions. Key: sessionId
@@ -430,6 +450,7 @@ final class AppState {
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self else { return }
+                self.discoverProjectsIfNeeded()
                 // Build project lookup once instead of nested first(where:) per session
                 let projectLookup = Dictionary(uniqueKeysWithValues: self.projects.map { ($0.id, $0.path) })
                 for (sid, state) in self.sessionStates where !state.isStreaming {
@@ -561,6 +582,15 @@ final class AppState {
             projects = deduplicated
             try? await persistence.saveProjects(projects)
         }
+        dismissedProjectPaths = await persistence.loadDismissedProjectPaths()
+        // Without a stored value every project already in the list is open,
+        // so the tab strip keeps its tabs after updating to this version.
+        openProjects = OpenProjects(
+            storedValue: UserDefaults.standard.stringArray(forKey: OpenProjects.defaultsKey),
+            existing: projects.map(\.id)
+        )
+        saveOpenProjects()
+        hasLoadedProjects = true
 
         if let cachedUser = await persistence.loadGitHubUser() {
             gitHubUser = cachedUser
@@ -577,6 +607,8 @@ final class AppState {
         for project in projects {
             watchProjectDirectory(project)
         }
+
+        discoverProjectsIfNeeded()
 
         if claudeInstalled && !onboardingCompleted {
             onboardingCompleted = true
@@ -630,9 +662,11 @@ final class AppState {
             selectProject(project, in: window)
         } else if let savedId = UserDefaults.standard.string(forKey: "selectedProjectId"),
                   let uuid = UUID(uuidString: savedId),
+                  openProjects.contains(uuid),
                   let project = projects.first(where: { $0.id == uuid }) {
             selectProject(project, in: window)
-        } else if let first = projects.first {
+        } else if let first = openProjectList.first {
+            // Only open tabs are restored, so closed tabs stay closed across launches.
             selectProject(first, in: window)
         }
 
@@ -1904,6 +1938,7 @@ final class AppState {
     }
 
     func selectProject(_ project: Project, in window: WindowState, restoreLastSession: Bool = true) {
+        openProject(project.id)
         guard window.selectedProject?.id != project.id else { return }
 
         if isStreaming(in: window) {
@@ -1944,6 +1979,12 @@ final class AppState {
     func addProjectFromFolder(_ url: URL, in window: WindowState) async {
         let isGitRepo = FileManager.default.fileExists(atPath: url.appendingPathComponent(".git").path)
         let gitHubRepo = isGitRepo ? detectGitHubRepo(at: url.path) : nil
+        // Adding a folder by hand undoes an earlier deletion, so discovery may pick it up again.
+        let standardized = url.path.standardizedCwd()
+        if dismissedProjectPaths.contains(standardized) {
+            dismissedProjectPaths.removeAll { $0 == standardized }
+            saveDismissedProjectPaths()
+        }
         await addAndSelectProject(name: url.lastPathComponent, path: url.path, gitHubRepo: gitHubRepo, in: window)
     }
 
@@ -1982,6 +2023,120 @@ final class AppState {
         if let project = projects.last {
             selectProject(project, in: window)
         }
+    }
+
+    // MARK: - Open Project Tabs
+
+    /// Shows the project's tab in the tab strip.
+    func openProject(_ id: UUID) {
+        guard !openProjects.contains(id) else { return }
+        openProjects.open(id)
+        saveOpenProjects()
+    }
+
+    /// Removes the project's tab without deleting the project. When it is the
+    /// window's selection, selects the neighbouring open tab, or no project.
+    func closeProjectTab(_ project: Project, in window: WindowState) {
+        let wasSelected = window.selectedProject?.id == project.id
+        let next = openProjects.close(project.id, selected: window.selectedProject?.id)
+        saveOpenProjects()
+        guard wasSelected else { return }
+        // `next` is the closed project itself when its tab was already closed
+        // (e.g. from another window); never reselect it.
+        if let next, next != project.id, let nextProject = projects.first(where: { $0.id == next }) {
+            selectProject(nextProject, in: window)
+        } else {
+            if isStreaming(in: window) {
+                detachCurrentStream(in: window)
+            }
+            window.selectedProject = nil
+            window.currentSessionId = nil
+        }
+    }
+
+    private func saveOpenProjects() {
+        UserDefaults.standard.set(openProjects.storedValue, forKey: OpenProjects.defaultsKey)
+    }
+
+    private func saveDismissedProjectPaths() {
+        let paths = dismissedProjectPaths
+        Task {
+            do { try await persistence.saveDismissedProjectPaths(paths) }
+            catch { logger.error("Failed to save dismissed projects: \(error.localizedDescription)") }
+        }
+    }
+
+    // MARK: - Project Discovery
+
+    /// Adds folders where Claude Code sessions ran (the `cwd` of session files
+    /// under `~/.claude/projects`) to the project list, newest first, at the
+    /// end. Runs after launch and on app activation, at most once per
+    /// `projectDiscoveryMinInterval`, and never under tests. Discovered projects
+    /// are not opened as tabs.
+    private func discoverProjectsIfNeeded() {
+        guard hasLoadedProjects, !Self.isRunningUnderTests, !isDiscoveringProjects else { return }
+        if let last = lastProjectDiscoveryAt,
+           Date().timeIntervalSince(last) < Self.projectDiscoveryMinInterval { return }
+        lastProjectDiscoveryAt = Date()
+        isDiscoveringProjects = true
+
+        Task { [weak self] in
+            guard let self else { return }
+            let found = await cliStore.discoveredCwds()
+            let home = FileManager.default.homeDirectoryForCurrentUser.path
+            let temporaryDirectories = [NSTemporaryDirectory()]
+            let candidates = await Task.detached(priority: .utility) {
+                found.map(\.cwd).filter { cwd in
+                    ProjectDiscovery.isCandidate(path: cwd, home: home, temporaryDirectories: temporaryDirectories)
+                        && Self.directoryExists(atPath: cwd)
+                }
+            }.value
+            let newPaths = ProjectDiscovery.newProjectPaths(
+                candidates: candidates,
+                existing: projects.map(\.path),
+                dismissed: dismissedProjectPaths
+            )
+            if !newPaths.isEmpty {
+                let repos = await Task.detached(priority: .utility) { [self] in
+                    newPaths.map { path -> String? in
+                        let isGitRepo = FileManager.default.fileExists(atPath: (path as NSString).appendingPathComponent(".git"))
+                        return isGitRepo ? self.detectGitHubRepo(at: path) : nil
+                    }
+                }.value
+                await addDiscoveredProjects(Array(zip(newPaths, repos)))
+            }
+            isDiscoveringProjects = false
+        }
+    }
+
+    private nonisolated static func directoryExists(atPath path: String) -> Bool {
+        var isDirectory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue
+    }
+
+    /// Appends discovered projects through the usual add steps: list, watcher,
+    /// `projects.json`, session summaries.
+    private func addDiscoveredProjects(_ entries: [(path: String, gitHubRepo: String?)]) async {
+        var added: [Project] = []
+        for entry in entries {
+            // The list may have changed while discovery ran in the background.
+            guard !projects.contains(where: { $0.path.standardizedCwd() == entry.path }),
+                  !dismissedProjectPaths.contains(entry.path) else { continue }
+            let project = Project(name: (entry.path as NSString).lastPathComponent, path: entry.path, gitHubRepo: entry.gitHubRepo)
+            projects.append(project)
+            watchProjectDirectory(project)
+            added.append(project)
+        }
+        guard !added.isEmpty else { return }
+        do {
+            try await persistence.saveProjects(projects)
+        } catch {
+            logger.error("Failed to save discovered projects: \(error.localizedDescription)")
+        }
+        for project in added {
+            await reloadSessionSummaries(for: project)
+        }
+        logger.info("Discovered \(added.count, privacy: .public) projects from Claude Code history")
     }
 
     // MARK: - Session Management
@@ -2450,15 +2605,15 @@ final class AppState {
     }
 
     func deleteProject(_ project: Project, in window: WindowState) async {
-        // Switch away if the deleted project is currently selected
-        if window.selectedProject?.id == project.id {
-            let next = projects.first(where: { $0.id != project.id })
-            if let next {
-                selectProject(next, in: window)
-            } else {
-                window.selectedProject = nil
-                window.currentSessionId = nil
-            }
+        // Close its tab; if it is selected, switch to the neighbouring open tab
+        // (or to no project), never to a project whose tab is closed.
+        closeProjectTab(project, in: window)
+
+        // Discovery must not add a deleted project back.
+        let standardized = project.path.standardizedCwd()
+        if !dismissedProjectPaths.contains(standardized) {
+            dismissedProjectPaths.append(standardized)
+            saveDismissedProjectPaths()
         }
 
         // Remove all in-memory session summaries for this project

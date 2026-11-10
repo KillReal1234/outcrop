@@ -69,6 +69,7 @@
 // MARK: - SkillMarketView
 "Refresh" = "Refresh";
 "Close" = "Close";
+"Close Tab" = "Close Tab";
 "Search skills..." = "Search skills...";
 "All" = "All";
 "Installed" = "Installed";

@@ -69,6 +69,7 @@
 // MARK: - SkillMarketView
 "Refresh" = "刷新";
 "Close" = "关闭";
+"Close Tab" = "关闭标签页";
 "Search skills..." = "搜索技能...";
 "All" = "全部";
 "Installed" = "已安装";

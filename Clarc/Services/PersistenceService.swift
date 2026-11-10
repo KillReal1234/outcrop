@@ -27,6 +27,17 @@ actor PersistenceService {
         return decode([Project].self, from: url) ?? []
     }
 
+    /// Standardized paths of projects the user deleted, so discovery does not add them back.
+    func saveDismissedProjectPaths(_ paths: [String]) throws {
+        let url = baseURL.appendingPathComponent("dismissed-projects.json")
+        try encode(paths, to: url)
+    }
+
+    func loadDismissedProjectPaths() -> [String] {
+        let url = baseURL.appendingPathComponent("dismissed-projects.json")
+        return decode([String].self, from: url) ?? []
+    }
+
     // MARK: - Sessions
 
     func saveSession(_ session: ChatSession, persistTitle: Bool = false) async throws {
