@@ -422,28 +422,58 @@ public actor CLISessionStore {
         var latestAITitle: String?
     }
 
+    /// Recently parsed transcripts, keyed by sid and the file's size and
+    /// modification date. Sidecar metadata is applied on every load, so a
+    /// rename or pin never comes back stale from here.
+    private var parsedCache = ParsedSessionCache<ParsedTranscript>()
+
     /// Parse the full jsonl into a `ChatSession`. Memory footprint is roughly
     /// proportional to rendered content (thinking signatures dropped at decode
     /// time). `projectId` is supplied by the caller because the session jsonl
     /// itself doesn't carry the Clarc project UUID.
     ///
     /// Reading and parsing run off the actor (`readTranscript`), so a large
-    /// file doesn't hold up summaries, project discovery or path lookups.
+    /// file doesn't hold up summaries, project discovery or path lookups. An
+    /// unchanged file is served from `parsedCache` without reading it.
     public func loadFullSession(
         sid: String,
         cwd: String,
         projectId: UUID
     ) async -> ChatSession? {
         let url = await jsonlURL(sid: sid, cwd: cwd)
-        guard let transcript = await Self.readTranscript(at: url) else { return nil }
+        // Stamp the file before reading it: if it grows during the read, the
+        // cached transcript holds more than the stamp says and the next load
+        // sees a new stamp and parses again — never the other way round.
+        let stamp = Self.fileStamp(of: url)
+        let transcript: ParsedTranscript
+        if let stamp, let cached = parsedCache.value(for: sid, stamp: stamp) {
+            transcript = cached
+        } else {
+            guard let parsed = await Self.readTranscript(at: url) else {
+                parsedCache.removeValue(for: sid)
+                return nil
+            }
+            if let stamp {
+                parsedCache.insert(parsed, for: sid, stamp: stamp)
+            }
+            transcript = parsed
+        }
         let meta = await metaStore.load(sessionId: sid)
         return Self.makeSession(
             sid: sid,
             projectId: projectId,
             transcript: transcript,
-            updatedAt: mtime(of: url) ?? Date(),
+            updatedAt: stamp?.modificationDate ?? mtime(of: url) ?? Date(),
             meta: meta
         )
+    }
+
+    /// Size and modification date of a file, or nil if it can't be read.
+    nonisolated static func fileStamp(of url: URL) -> ParsedSessionCache<ParsedTranscript>.Stamp? {
+        guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let size = (attrs[.size] as? NSNumber)?.uint64Value,
+              let date = attrs[.modificationDate] as? Date else { return nil }
+        return .init(size: size, modificationDate: date)
     }
 
     /// Bulk-read the whole jsonl and parse it. `@concurrent` keeps the work on

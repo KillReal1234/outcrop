@@ -108,4 +108,77 @@ struct CLISessionLoadingTests {
         let session = await fixture.store.loadFullSession(sid: "missing", cwd: fixture.cwd, projectId: fixture.projectId)
         #expect(session == nil)
     }
+
+    // MARK: Cache
+
+    @Test func secondLoadOfUnchangedFileReturnsSameTranscript() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        try fixture.write(sampleSession, sid: sid)
+
+        let first = await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId)
+        let second = await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId)
+        #expect(first?.messages == second?.messages)
+        #expect(first?.title == second?.title)
+        #expect(first?.messages.isEmpty == false)
+    }
+
+    @Test func unchangedStampIsServedWithoutReadingTheFile() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        let url = fixture.fileURL(sid: sid)
+        let original = sessionLines(count: 2, text: "a")
+        try fixture.write(original, sid: sid)
+        // A whole-second date survives setAttributes exactly (it rounds to µs).
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        try FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: url.path)
+
+        let first = await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId)
+
+        // Same size, same modification date, different content: only a cache
+        // hit can still return the original text.
+        let swapped = sessionLines(count: 2, text: "b")
+        #expect(swapped.utf8.count == original.utf8.count)
+        try fixture.write(swapped, sid: sid)
+        try FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: url.path)
+
+        let second = await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId)
+        #expect(second?.messages == first?.messages)
+        #expect(second?.messages.first?.content == "a0")
+    }
+
+    @Test func appendedLineIsPickedUp() async throws {
+        let fixture = try SessionFixture()
+        defer { fixture.cleanUp() }
+        let sid = UUID().uuidString.lowercased()
+        let complete = sampleSession.split(separator: "\n").dropLast().joined(separator: "\n") + "\n"
+        try fixture.write(complete, sid: sid)
+
+        let before = try #require(await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId))
+
+        let appended = #"{"parentUuid":"10000000-0000-0000-0000-00000000000b","isSidechain":false,"type":"user","message":{"role":"user","content":"One more thing"},"uuid":"10000000-0000-0000-0000-00000000000d","timestamp":"2026-11-10T10:00:07.000Z"}"# + "\n"
+        let handle = try FileHandle(forWritingTo: fixture.fileURL(sid: sid))
+        try handle.seekToEnd()
+        try handle.write(contentsOf: Data(appended.utf8))
+        try handle.close()
+
+        let after = try #require(await fixture.store.loadFullSession(sid: sid, cwd: fixture.cwd, projectId: fixture.projectId))
+        #expect(after.messages.count == before.messages.count + 1)
+        #expect(after.messages.last?.content == "One more thing")
+        #expect(Array(after.messages.dropLast()) == before.messages)
+    }
+}
+
+/// `count` user/assistant pairs with texts `"\(text)\(i)"`, uuid-stable.
+private func sessionLines(count: Int, text: String) -> String {
+    (0..<count).flatMap { i -> [String] in
+        let u = String(format: "20000000-0000-0000-0000-%012d", 2 * i)
+        let a = String(format: "20000000-0000-0000-0000-%012d", 2 * i + 1)
+        return [
+            #"{"type":"user","message":{"role":"user","content":"\#(text)\#(i)"},"uuid":"\#(u)","timestamp":"2026-11-10T11:00:00.000Z"}"#,
+            #"{"type":"assistant","message":{"id":"m\#(i)","type":"message","role":"assistant","content":[{"type":"text","text":"reply \#(text)\#(i)"}]},"uuid":"\#(a)","timestamp":"2026-11-10T11:00:01.000Z"}"#,
+        ]
+    }.joined(separator: "\n") + "\n"
 }
