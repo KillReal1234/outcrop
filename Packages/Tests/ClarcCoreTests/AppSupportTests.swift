@@ -21,4 +21,9 @@ struct AppSupportTests {
     func otherBundleID() {
         #expect(AppSupport.directoryName(forBundleID: "com.example.something") == "Clarc.something")
     }
+
+    @Test("Outcrop bundle id maps to its own Outcrop directory")
+    func outcropBundleID() {
+        #expect(AppSupport.directoryName(forBundleID: "io.github.killreal1234.outcrop") == "Outcrop")
+    }
 }
