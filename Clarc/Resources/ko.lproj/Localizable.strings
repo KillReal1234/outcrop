@@ -261,7 +261,7 @@
 "What is Clarc?" = "Outcrop이란?";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "Claude Code CLI를 위한 네이티브 macOS 데스크톱 클라이언트입니다. 터미널 없이 세련된 GUI로 Claude Code의 모든 기능을 사용할 수 있습니다.";
 "Main Layout" = "기본 레이아웃";
-"The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "왼쪽 사이드바에는 세션 및 파일 탭이 있습니다. 채팅 영역 상단에 프로젝트 탭이 표시되며 클릭하여 전환할 수 있습니다. 오른쪽 인스펙터 패널에는 터미널과 메모 탭이 있습니다.";
+"The left sidebar lists your sessions. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal, Files and Memo tabs." = "왼쪽 사이드바에는 세션 목록이 표시됩니다. 채팅 영역 상단에 프로젝트 탭이 표시되며 클릭하여 전환할 수 있습니다. 오른쪽 인스펙터 패널에는 터미널, 파일, 메모 탭이 있습니다.";
 "Chat is disabled when no project is selected." = "프로젝트가 선택되지 않으면 채팅을 사용할 수 없습니다.";
 "Top Toolbar" = "상단 툴바";
 "The toolbar contains: New Chat, Manage Slash Commands, Manage Shortcut Buttons, Skip Permissions toggle, Model picker, Inspector panel toggle, Settings, and the GitHub integration button." = "툴바 구성: 새 채팅, 슬래시 커맨드 관리, 단축 버튼 관리, 권한 건너뛰기 토글, 모델 선택, 인스펙터 패널 토글, 설정, GitHub 연동 버튼.";
@@ -274,19 +274,19 @@
 "Dedicated Project Window" = "전용 프로젝트 창";
 "Double-click a project tab to open it in its own independent window. Each window manages its own sessions independently, allowing you to work on multiple projects at once." = "프로젝트 탭을 더블 클릭하면 독립적인 전용 창에서 열립니다. 각 창은 세션을 독립적으로 관리하므로 여러 프로젝트를 동시에 작업할 수 있습니다.";
 "In a dedicated project window, only the project name is shown — there are no project tabs." = "전용 프로젝트 창에서는 프로젝트 이름만 표시되며 프로젝트 탭은 없습니다.";
-"Sidebar Tabs" = "사이드바 탭";
-"History tab: shows previous conversations\nFiles tab: browse the project file tree" = "세션 탭: 이전 대화 표시\n파일 탭: 프로젝트 파일 트리 탐색";
-"Go to History tab" = "세션 탭으로 이동";
-"Go to Files tab" = "파일 탭으로 이동";
-"Files tab + activate search" = "파일 탭 + 검색 활성화";
+"Files Tab" = "파일 탭";
+"The Files tab in the inspector panel shows the project file tree. A file you open appears below the tree, next to the chat." = "인스펙터 패널의 파일 탭에는 프로젝트 파일 트리가 표시됩니다. 연 파일은 트리 아래, 채팅 옆에 표시됩니다.";
+"Show the sidebar" = "사이드바 표시";
+"Open the Files tab in the inspector" = "인스펙터에서 파일 탭 열기";
+"Files tab in the inspector + search" = "인스펙터 파일 탭 + 검색";
 "History Management" = "세션 관리";
-"Right-click a session in the History tab for context menu options." = "세션 탭에서 세션을 우클릭하면 컨텍스트 메뉴가 표시됩니다.";
+"Right-click a session in the sidebar for context menu options." = "사이드바에서 세션을 우클릭하면 컨텍스트 메뉴가 표시됩니다.";
 "Pin / Unpin — pinned sessions stay at the top of the list" = "고정 / 고정 해제 — 고정된 세션은 항상 목록 최상단에 표시됩니다";
 "Rename — change the session title" = "이름 변경 — 세션 제목을 수정합니다";
 "Delete — remove the session" = "삭제 — 세션을 삭제합니다";
 "Use the trash icon in the History header to delete all sessions at once." = "세션 헤더의 휴지통 아이콘을 사용하면 모든 세션을 한 번에 삭제할 수 있습니다.";
 "File Inspector" = "파일 인스펙터";
-"Click any file in the Files tab to preview it with syntax highlighting. Press the pencil button to enter edit mode and modify the file directly." = "파일 탭에서 파일을 클릭하면 구문 강조와 함께 미리 볼 수 있습니다. 연필 버튼을 눌러 편집 모드로 전환하고 파일을 직접 수정할 수 있습니다.";
+"Click any file in the Files tab to preview it below the tree with syntax highlighting. Files opened from the chat appear there too. Press the pencil button to enter edit mode and modify the file directly." = "파일 탭에서 파일을 클릭하면 트리 아래에 구문 강조와 함께 미리 볼 수 있습니다. 채팅에서 연 파일도 여기에 표시됩니다. 연필 버튼을 눌러 편집 모드로 전환하고 파일을 직접 수정할 수 있습니다.";
 "Save file changes" = "파일 변경사항 저장";
 "Exit edit mode" = "편집 모드 종료";
 "Files larger than 1 MB cannot be previewed." = "1 MB를 초과하는 파일은 미리볼 수 없습니다.";
@@ -318,11 +318,8 @@
 "Global Shortcuts" = "전체 단축키";
 "Start new chat" = "새 채팅 시작";
 "Close current window" = "현재 창 닫기";
-"Sidebar — History tab (expands sidebar if hidden)" = "사이드바 — 세션 탭 (숨겨진 경우 사이드바 펼침)";
-"Sidebar — Files tab (expands sidebar if hidden)" = "사이드바 — 파일 탭 (숨겨진 경우 사이드바 펼침)";
 "Toggle left sidebar" = "왼쪽 사이드바 펼치기/숨기기";
 "Toggle right inspector panel" = "오른쪽 인스펙터 패널 펼치기/숨기기";
-"Sidebar — Files tab + search" = "사이드바 — 파일 탭 + 검색";
 "Project tab — open in dedicated window" = "프로젝트 탭 — 전용 창에서 열기";
 "Input Field Shortcuts" = "입력창 단축키";
 "Line break" = "줄 바꿈";
@@ -377,7 +374,7 @@
 
 // Inspector Panel
 "Opening the Inspector Panel" = "인스펙터 패널 열기";
-"Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains two tabs: Terminal and Memo." = "툴바 오른쪽 상단의 ⊟ 버튼을 클릭하여 인스펙터 패널을 열고 닫습니다. 패널은 창 오른쪽에 고정되며 터미널과 메모 탭을 포함합니다.";
+"Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains three tabs: Terminal, Files and Memo." = "툴바 오른쪽 상단의 ⊟ 버튼을 클릭하여 인스펙터 패널을 열고 닫습니다. 패널은 창 오른쪽에 고정되며 터미널, 파일, 메모 탭을 포함합니다.";
 "Terminal Tab" = "터미널 탭";
 "An embedded zsh terminal that opens at the current project's directory. Use it to run shell commands, inspect files, or manage git — all without leaving the app." = "현재 프로젝트 디렉토리에서 실행되는 내장 zsh 터미널입니다. 앱을 벗어나지 않고 셸 커맨드 실행, 파일 확인, git 관리 등을 할 수 있습니다.";
 "Memo Tab" = "메모 탭";
@@ -538,8 +535,15 @@
 
 /* Inspector Panel Layout */
 "Panel Layout" = "패널 레이아웃";
-"Choose where the memo and terminal panel is docked." = "메모·터미널 패널을 어디에 배치할지 선택합니다.";
+"Choose where the inspector panel is docked." = "인스펙터 패널을 어디에 배치할지 선택합니다.";
 "Right" = "오른쪽";
 "Bottom" = "하단";
-"Show memo and terminal together" = "메모와 터미널 함께 표시";
-"Splits the panel in two. On the right they stack (memo on top); at the bottom they sit side by side (memo on the left)." = "패널을 둘로 나눕니다. 오른쪽 배치는 위아래(위가 메모), 하단 배치는 좌우(왼쪽이 메모)로 나뉩니다.";
+
+/* Inspector Files Tab */
+"No project selected" = "선택된 프로젝트 없음";
+"Show Inspector" = "인스펙터 보기";
+"Hide Inspector" = "인스펙터 가리기";
+"Save changes to “%@”?" = "“%@”의 변경 사항을 저장하시겠습니까?";
+"Save" = "저장";
+"Discard" = "버리기";
+"Close Preview" = "미리보기 닫기";

@@ -261,7 +261,7 @@
 "What is Clarc?" = "什么是 Outcrop？";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "面向 Claude Code CLI 的原生 macOS 桌面客户端。无需终端，即可通过精致的图形界面使用 Claude Code 的全部功能。";
 "Main Layout" = "主界面布局";
-"The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "左侧边栏包含会话和文件标签页。项目标签显示在对话区域顶部 — 点击即可切换项目。右侧检查器面板包含终端和备忘标签页。";
+"The left sidebar lists your sessions. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal, Files and Memo tabs." = "左侧边栏列出你的会话。项目标签显示在对话区域顶部 — 点击即可切换项目。右侧检查器面板包含终端、文件和备忘标签页。";
 "Chat is disabled when no project is selected." = "未选择项目时无法使用对话。";
 "Top Toolbar" = "顶部工具栏";
 "The toolbar contains: New Chat, Manage Slash Commands, Manage Shortcut Buttons, Skip Permissions toggle, Model picker, Inspector panel toggle, Settings, and the GitHub integration button." = "工具栏包含：新建对话、管理斜杠命令、管理快捷按钮、跳过权限开关、模型选择器、检查器面板开关、设置以及 GitHub 集成按钮。";
@@ -274,19 +274,19 @@
 "Dedicated Project Window" = "专用项目窗口";
 "Double-click a project tab to open it in its own independent window. Each window manages its own sessions independently, allowing you to work on multiple projects at once." = "双击项目标签可在独立的专用窗口中打开。每个窗口独立管理各自的会话，让你能够同时处理多个项目。";
 "In a dedicated project window, only the project name is shown — there are no project tabs." = "在专用项目窗口中仅显示项目名称 — 没有项目标签。";
-"Sidebar Tabs" = "侧边栏标签页";
-"History tab: shows previous conversations\nFiles tab: browse the project file tree" = "会话标签页：显示以往的对话\n文件标签页：浏览项目文件树";
-"Go to History tab" = "前往会话标签页";
-"Go to Files tab" = "前往文件标签页";
-"Files tab + activate search" = "文件标签页 + 激活搜索";
+"Files Tab" = "文件标签页";
+"The Files tab in the inspector panel shows the project file tree. A file you open appears below the tree, next to the chat." = "检查器面板中的文件标签页显示项目文件树。打开的文件显示在文件树下方、对话旁边。";
+"Show the sidebar" = "显示侧边栏";
+"Open the Files tab in the inspector" = "在检查器中打开文件标签页";
+"Files tab in the inspector + search" = "检查器文件标签页 + 搜索";
 "History Management" = "会话管理";
-"Right-click a session in the History tab for context menu options." = "在会话标签页中右键点击会话可显示上下文菜单选项。";
+"Right-click a session in the sidebar for context menu options." = "在侧边栏中右键点击会话可显示上下文菜单选项。";
 "Pin / Unpin — pinned sessions stay at the top of the list" = "置顶 / 取消置顶 — 置顶的会话始终显示在列表最上方";
 "Rename — change the session title" = "重命名 — 修改会话标题";
 "Delete — remove the session" = "删除 — 移除该会话";
 "Use the trash icon in the History header to delete all sessions at once." = "使用会话标题栏中的垃圾桶图标可一次性删除所有会话。";
 "File Inspector" = "文件检查器";
-"Click any file in the Files tab to preview it with syntax highlighting. Press the pencil button to enter edit mode and modify the file directly." = "在文件标签页中点击任意文件，即可带语法高亮地预览。按下铅笔按钮进入编辑模式，直接修改文件。";
+"Click any file in the Files tab to preview it below the tree with syntax highlighting. Files opened from the chat appear there too. Press the pencil button to enter edit mode and modify the file directly." = "在文件标签页中点击任意文件，即可在文件树下方带语法高亮地预览。从对话中打开的文件也显示在这里。按下铅笔按钮进入编辑模式，直接修改文件。";
 "Save file changes" = "保存文件更改";
 "Exit edit mode" = "退出编辑模式";
 "Files larger than 1 MB cannot be previewed." = "超过 1 MB 的文件无法预览。";
@@ -318,11 +318,8 @@
 "Global Shortcuts" = "全局快捷键";
 "Start new chat" = "开始新对话";
 "Close current window" = "关闭当前窗口";
-"Sidebar — History tab (expands sidebar if hidden)" = "侧边栏 — 会话标签页（侧边栏隐藏时会展开）";
-"Sidebar — Files tab (expands sidebar if hidden)" = "侧边栏 — 文件标签页（侧边栏隐藏时会展开）";
 "Toggle left sidebar" = "展开/隐藏左侧边栏";
 "Toggle right inspector panel" = "展开/隐藏右侧检查器面板";
-"Sidebar — Files tab + search" = "侧边栏 — 文件标签页 + 搜索";
 "Project tab — open in dedicated window" = "项目标签 — 在专用窗口中打开";
 "Input Field Shortcuts" = "输入框快捷键";
 "Line break" = "换行";
@@ -377,7 +374,7 @@
 
 // Inspector Panel
 "Opening the Inspector Panel" = "打开检查器面板";
-"Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains two tabs: Terminal and Memo." = "点击工具栏右上角的 ⊟ 按钮可展开或收起检查器面板。该面板停靠在窗口右侧，包含两个标签页：终端和备忘。";
+"Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains three tabs: Terminal, Files and Memo." = "点击工具栏右上角的 ⊟ 按钮可展开或收起检查器面板。该面板停靠在窗口右侧，包含三个标签页：终端、文件和备忘。";
 "Terminal Tab" = "终端标签页";
 "An embedded zsh terminal that opens at the current project's directory. Use it to run shell commands, inspect files, or manage git — all without leaving the app." = "在当前项目目录下打开的内置 zsh 终端。你可用它运行 shell 命令、查看文件或管理 git — 全程无需离开应用。";
 "Memo Tab" = "备忘标签页";
@@ -538,8 +535,15 @@
 
 /* Inspector Panel Layout */
 "Panel Layout" = "面板布局";
-"Choose where the memo and terminal panel is docked." = "选择备忘和终端面板的停靠位置。";
+"Choose where the inspector panel is docked." = "选择检查器面板的停靠位置。";
 "Right" = "右侧";
 "Bottom" = "底部";
-"Show memo and terminal together" = "同时显示备忘和终端";
-"Splits the panel in two. On the right they stack (memo on top); at the bottom they sit side by side (memo on the left)." = "将面板一分为二。停靠右侧时上下排列（备忘在上）；停靠底部时左右排列（备忘在左）。";
+
+/* Inspector Files Tab */
+"No project selected" = "未选择项目";
+"Show Inspector" = "显示检查器";
+"Hide Inspector" = "隐藏检查器";
+"Save changes to “%@”?" = "要保存对“%@”的更改吗？";
+"Save" = "保存";
+"Discard" = "放弃";
+"Close Preview" = "关闭预览";

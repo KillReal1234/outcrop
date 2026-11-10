@@ -6,8 +6,6 @@ import ClarcChatKit
 struct ProjectWindowView: View {
     @Environment(AppState.self) private var appState
     @Environment(WindowState.self) private var windowState
-    @State private var sidebarTab: MainView.SidebarTab = .history
-    @State private var fileSearchTrigger = false
     @State private var inspectorStarted = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
@@ -57,6 +55,9 @@ struct ProjectWindowView: View {
             }
             .keyboardShortcut("3", modifiers: .command)
             .hidden()
+
+            WindowPaneShortcuts(columnVisibility: $columnVisibility)
+            InspectorCommandsPublisher()
         }
         .id(appState.themeRevision)
         .navigationTitle(windowState.selectedProject?.name ?? "Project")
@@ -75,23 +76,7 @@ struct ProjectWindowView: View {
 
     private var sidebarContent: some View {
         VStack(spacing: 0) {
-            // Sidebar tabs (History/Files)
-            ClaudeSegmentedControl(selection: $sidebarTab)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-
-            ClaudeThemeDivider()
-
-            switch sidebarTab {
-            case .files:
-                if let project = windowState.selectedProject {
-                    FileTreeView(projectPath: project.path)
-                }
-            case .history:
-                HistoryListView()
-            }
-
-            SidebarTabShortcuts(sidebarTab: $sidebarTab, fileSearchTrigger: $fileSearchTrigger, columnVisibility: $columnVisibility)
+            HistoryListView()
 
             ClaudeThemeDivider()
 
@@ -185,7 +170,6 @@ struct ProjectWindowView: View {
                     Image(systemName: appState.inspectorPosition == .bottom ? "inset.filled.bottomthird.rectangle" : "sidebar.trailing")
                 }
                 .help("Toggle Inspector")
-                .keyboardShortcut("4", modifiers: .command)
             }
         }
         .focusedValue(\.startNewChat) {

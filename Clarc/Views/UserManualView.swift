@@ -228,7 +228,7 @@ enum ManualTopic: String, CaseIterable, Identifiable {
                 ),
                 ManualSection(
                     title: "Main Layout",
-                    body: "The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs.",
+                    body: "The left sidebar lists your sessions. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal, Files and Memo tabs.",
                     note: "Chat is disabled when no project is selected."
                 ),
                 ManualSection(
@@ -253,17 +253,17 @@ enum ManualTopic: String, CaseIterable, Identifiable {
                     note: "In a dedicated project window, only the project name is shown — there are no project tabs."
                 ),
                 ManualSection(
-                    title: "Sidebar Tabs",
-                    body: "History tab: shows previous conversations\nFiles tab: browse the project file tree",
+                    title: "Files Tab",
+                    body: "The Files tab in the inspector panel shows the project file tree. A file you open appears below the tree, next to the chat.",
                     items: [
-                        KeyValueItem(key: "⌘1", value: "Go to History tab"),
-                        KeyValueItem(key: "⌘2", value: "Go to Files tab"),
-                        KeyValueItem(key: "⌘F", value: "Files tab + activate search"),
+                        KeyValueItem(key: "⌘1", value: "Show the sidebar"),
+                        KeyValueItem(key: "⌘2", value: "Open the Files tab in the inspector"),
+                        KeyValueItem(key: "⌘F", value: "Files tab in the inspector + search"),
                     ]
                 ),
                 ManualSection(
                     title: "History Management",
-                    body: "Right-click a session in the History tab for context menu options.",
+                    body: "Right-click a session in the sidebar for context menu options.",
                     items: [
                         KeyValueItem(key: "pin", value: "Pin / Unpin — pinned sessions stay at the top of the list", symbolName: "pin.fill", symbolColor: .orange),
                         KeyValueItem(key: "rename", value: "Rename — change the session title", symbolName: "pencil", symbolColor: .secondary),
@@ -282,7 +282,7 @@ enum ManualTopic: String, CaseIterable, Identifiable {
                 ),
                 ManualSection(
                     title: "File Inspector",
-                    body: "Click any file in the Files tab to preview it with syntax highlighting. Press the pencil button to enter edit mode and modify the file directly.",
+                    body: "Click any file in the Files tab to preview it below the tree with syntax highlighting. Files opened from the chat appear there too. Press the pencil button to enter edit mode and modify the file directly.",
                     items: [
                         KeyValueItem(key: "⌘S", value: "Save file changes"),
                         KeyValueItem(key: "Escape", value: "Exit edit mode"),
@@ -370,11 +370,11 @@ enum ManualTopic: String, CaseIterable, Identifiable {
                     items: [
                         KeyValueItem(key: "⌘N", value: "Start new chat"),
                         KeyValueItem(key: "⌘W", value: "Close current window"),
-                        KeyValueItem(key: "⌘1", value: "Sidebar — History tab (expands sidebar if hidden)"),
-                        KeyValueItem(key: "⌘2", value: "Sidebar — Files tab (expands sidebar if hidden)"),
+                        KeyValueItem(key: "⌘1", value: "Show the sidebar"),
+                        KeyValueItem(key: "⌘2", value: "Open the Files tab in the inspector"),
                         KeyValueItem(key: "⌘3", value: "Toggle left sidebar"),
                         KeyValueItem(key: "⌘4", value: "Toggle right inspector panel"),
-                        KeyValueItem(key: "⌘F", value: "Sidebar — Files tab + search"),
+                        KeyValueItem(key: "⌘F", value: "Files tab in the inspector + search"),
                         KeyValueItem(key: "Double-click", value: "Project tab — open in dedicated window"),
                     ]
                 ),
@@ -502,7 +502,7 @@ enum ManualTopic: String, CaseIterable, Identifiable {
             [
                 ManualSection(
                     title: "Opening the Inspector Panel",
-                    body: "Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains two tabs: Terminal and Memo."
+                    body: "Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains three tabs: Terminal, Files and Memo."
                 ),
                 ManualSection(
                     title: "Terminal Tab",

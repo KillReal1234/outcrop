@@ -204,7 +204,7 @@ struct GeneralSettingsTab: View {
             Text("Panel Layout")
                 .font(.system(size: ClaudeTheme.size(13), weight: .semibold))
 
-            Text("Choose where the memo and terminal panel is docked.")
+            Text("Choose where the inspector panel is docked.")
                 .font(.system(size: ClaudeTheme.size(11)))
                 .foregroundStyle(.secondary)
 
@@ -215,18 +215,6 @@ struct GeneralSettingsTab: View {
             .labelsHidden()
             .pickerStyle(.segmented)
             .fixedSize()
-
-            Toggle(isOn: $appState.inspectorShowBoth) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Show memo and terminal together")
-                        .font(.system(size: ClaudeTheme.size(13)))
-                    Text("Splits the panel in two. On the right they stack (memo on top); at the bottom they sit side by side (memo on the left).")
-                        .font(.system(size: ClaudeTheme.size(11)))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .toggleStyle(.switch)
         }
     }
 

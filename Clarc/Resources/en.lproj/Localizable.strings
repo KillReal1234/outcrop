@@ -261,7 +261,7 @@
 "What is Clarc?" = "What is Outcrop?";
 "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal." = "A native macOS desktop client for the Claude Code CLI. Use all Claude Code features via a polished GUI without needing a terminal.";
 "Main Layout" = "Main Layout";
-"The left sidebar has History and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs." = "The left sidebar has Sessions and Files tabs. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal and Memo tabs.";
+"The left sidebar lists your sessions. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal, Files and Memo tabs." = "The left sidebar lists your sessions. Project tabs appear at the top of the chat area — click to switch projects. The right inspector panel contains the Terminal, Files and Memo tabs.";
 "Chat is disabled when no project is selected." = "Chat is disabled when no project is selected.";
 "Top Toolbar" = "Top Toolbar";
 "The toolbar contains: New Chat, Manage Slash Commands, Manage Shortcut Buttons, Skip Permissions toggle, Model picker, Inspector panel toggle, Settings, and the GitHub integration button." = "The toolbar contains: New Chat, Manage Slash Commands, Manage Shortcut Buttons, Skip Permissions toggle, Model picker, Inspector panel toggle, Settings, and the GitHub integration button.";
@@ -274,19 +274,19 @@
 "Dedicated Project Window" = "Dedicated Project Window";
 "Double-click a project tab to open it in its own independent window. Each window manages its own sessions independently, allowing you to work on multiple projects at once." = "Double-click a project tab to open it in its own independent window. Each window manages its own sessions independently, allowing you to work on multiple projects at once.";
 "In a dedicated project window, only the project name is shown — there are no project tabs." = "In a dedicated project window, only the project name is shown — there are no project tabs.";
-"Sidebar Tabs" = "Sidebar Tabs";
-"History tab: shows previous conversations\nFiles tab: browse the project file tree" = "Sessions tab: shows previous conversations\nFiles tab: browse the project file tree";
-"Go to History tab" = "Go to Sessions tab";
-"Go to Files tab" = "Go to Files tab";
-"Files tab + activate search" = "Files tab + activate search";
+"Files Tab" = "Files Tab";
+"The Files tab in the inspector panel shows the project file tree. A file you open appears below the tree, next to the chat." = "The Files tab in the inspector panel shows the project file tree. A file you open appears below the tree, next to the chat.";
+"Show the sidebar" = "Show the sidebar";
+"Open the Files tab in the inspector" = "Open the Files tab in the inspector";
+"Files tab in the inspector + search" = "Files tab in the inspector + search";
 "History Management" = "Session Management";
-"Right-click a session in the History tab for context menu options." = "Right-click a session in the Sessions tab for context menu options.";
+"Right-click a session in the sidebar for context menu options." = "Right-click a session in the sidebar for context menu options.";
 "Pin / Unpin — pinned sessions stay at the top of the list" = "Pin / Unpin — pinned sessions stay at the top of the list";
 "Rename — change the session title" = "Rename — change the session title";
 "Delete — remove the session" = "Delete — remove the session";
 "Use the trash icon in the History header to delete all sessions at once." = "Use the trash icon in the Sessions header to delete all sessions at once.";
 "File Inspector" = "File Inspector";
-"Click any file in the Files tab to preview it with syntax highlighting. Press the pencil button to enter edit mode and modify the file directly." = "Click any file in the Files tab to preview it with syntax highlighting. Press the pencil button to enter edit mode and modify the file directly.";
+"Click any file in the Files tab to preview it below the tree with syntax highlighting. Files opened from the chat appear there too. Press the pencil button to enter edit mode and modify the file directly." = "Click any file in the Files tab to preview it below the tree with syntax highlighting. Files opened from the chat appear there too. Press the pencil button to enter edit mode and modify the file directly.";
 "Save file changes" = "Save file changes";
 "Exit edit mode" = "Exit edit mode";
 "Files larger than 1 MB cannot be previewed." = "Files larger than 1 MB cannot be previewed.";
@@ -318,11 +318,8 @@
 "Global Shortcuts" = "Global Shortcuts";
 "Start new chat" = "Start new chat";
 "Close current window" = "Close current window";
-"Sidebar — History tab (expands sidebar if hidden)" = "Sidebar — Sessions tab (expands sidebar if hidden)";
-"Sidebar — Files tab (expands sidebar if hidden)" = "Sidebar — Files tab (expands sidebar if hidden)";
 "Toggle left sidebar" = "Toggle left sidebar";
 "Toggle right inspector panel" = "Toggle right inspector panel";
-"Sidebar — Files tab + search" = "Sidebar — Files tab + search";
 "Project tab — open in dedicated window" = "Project tab — open in dedicated window";
 "Input Field Shortcuts" = "Input Field Shortcuts";
 "Line break" = "Line break";
@@ -377,7 +374,7 @@
 
 // Inspector Panel
 "Opening the Inspector Panel" = "Opening the Inspector Panel";
-"Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains two tabs: Terminal and Memo." = "Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains two tabs: Terminal and Memo.";
+"Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains three tabs: Terminal, Files and Memo." = "Click the sidebar.trailing (⊟) button at the top right of the toolbar to toggle the inspector panel. The panel docks to the right side of the window and contains three tabs: Terminal, Files and Memo.";
 "Terminal Tab" = "Terminal Tab";
 "An embedded zsh terminal that opens at the current project's directory. Use it to run shell commands, inspect files, or manage git — all without leaving the app." = "An embedded zsh terminal that opens at the current project's directory. Use it to run shell commands, inspect files, or manage git — all without leaving the app.";
 "Memo Tab" = "Memo Tab";
@@ -518,8 +515,15 @@
 
 /* Inspector Panel Layout */
 "Panel Layout" = "Panel Layout";
-"Choose where the memo and terminal panel is docked." = "Choose where the memo and terminal panel is docked.";
+"Choose where the inspector panel is docked." = "Choose where the inspector panel is docked.";
 "Right" = "Right";
 "Bottom" = "Bottom";
-"Show memo and terminal together" = "Show memo and terminal together";
-"Splits the panel in two. On the right they stack (memo on top); at the bottom they sit side by side (memo on the left)." = "Splits the panel in two. On the right they stack (memo on top); at the bottom they sit side by side (memo on the left).";
+
+/* Inspector Files Tab */
+"No project selected" = "No project selected";
+"Show Inspector" = "Show Inspector";
+"Hide Inspector" = "Hide Inspector";
+"Save changes to “%@”?" = "Save changes to “%@”?";
+"Save" = "Save";
+"Discard" = "Discard";
+"Close Preview" = "Close Preview";

@@ -9,25 +9,11 @@ struct MainView: View {
     @State private var showGitHubSheet = false
     @State private var showFilePicker = false
     @Environment(\.openSettings) private var openSettings
-    @State private var sidebarTab: SidebarTab = .history
-    @State private var fileSearchTrigger = false
     @State private var inspectorStarted = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var projectToDelete: Project? = nil
     @State private var projectToRename: Project? = nil
     @State private var renameText: String = ""
-
-    enum SidebarTab: String, CaseIterable {
-        case history = "History"
-        case files = "Files"
-
-        var icon: String {
-            switch self {
-            case .files: "folder"
-            case .history: "clock"
-            }
-        }
-    }
 
     var body: some View {
         if !appState.onboardingCompleted {
@@ -57,6 +43,9 @@ struct MainView: View {
                     }
                     .keyboardShortcut("3", modifiers: .command)
                     .hidden()
+
+                    WindowPaneShortcuts(columnVisibility: $columnVisibility)
+                    InspectorCommandsPublisher()
                 }
                 .overlay {
                     if windowState.showMarketplace {
@@ -135,24 +124,7 @@ struct MainView: View {
 
     private var sidebarContent: some View {
         VStack(spacing: 0) {
-            if windowState.selectedProject != nil {
-                ClaudeSegmentedControl(selection: $sidebarTab)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-
-                switch sidebarTab {
-                case .files:
-                    FileTreeView(projectPath: windowState.selectedProject!.path)
-                case .history:
-                    HistoryListView()
-                }
-            } else {
-                HistoryListView()
-            }
-
-            if windowState.selectedProject != nil {
-                SidebarTabShortcuts(sidebarTab: $sidebarTab, fileSearchTrigger: $fileSearchTrigger, columnVisibility: $columnVisibility)
-            }
+            HistoryListView()
 
             ClaudeThemeDivider()
 
@@ -328,7 +300,6 @@ struct DetailToolbar: View {
                         Image(systemName: appState.inspectorPosition == .bottom ? "inset.filled.bottomthird.rectangle" : "sidebar.trailing")
                     }
                     .help("Toggle Inspector")
-                    .keyboardShortcut("4", modifiers: .command)
 
                     Button {
                         openSettings()
@@ -665,45 +636,11 @@ private struct InspectorIconButton: View {
     }
 }
 
-// MARK: - Claude Segmented Control
+// MARK: - Window Pane Shortcuts
 
-struct ClaudeSegmentedControl: View {
-    @Binding var selection: MainView.SidebarTab
-
-    var body: some View {
-        HStack(spacing: 2) {
-            ForEach(MainView.SidebarTab.allCases, id: \.self) { tab in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) { selection = tab }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: ClaudeTheme.size(10), weight: .medium))
-                        Text(LocalizedStringKey(tab.rawValue))
-                            .font(.system(size: ClaudeTheme.size(12), weight: .medium))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 5)
-                    .contentShape(Rectangle())
-                    .foregroundStyle(selection == tab ? ClaudeTheme.textOnAccent : ClaudeTheme.textSecondary)
-                    .background(
-                        selection == tab ? ClaudeTheme.accent : Color.clear,
-                        in: RoundedRectangle(cornerRadius: 6)
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(2)
-        .background(ClaudeTheme.surfaceSecondary, in: RoundedRectangle(cornerRadius: ClaudeTheme.cornerRadiusSmall))
-    }
-}
-
-// MARK: - Sidebar Tab Shortcuts
-
-struct SidebarTabShortcuts: View {
-    @Binding var sidebarTab: MainView.SidebarTab
-    @Binding var fileSearchTrigger: Bool
+/// Hidden buttons for the sidebar and inspector shortcuts. ⌘2 and ⌘4 are menu commands (View menu).
+struct WindowPaneShortcuts: View {
+    @Environment(WindowState.self) private var windowState
     @Binding var columnVisibility: NavigationSplitViewVisibility
 
     var body: some View {
@@ -711,26 +648,36 @@ struct SidebarTabShortcuts: View {
             .frame(width: 0, height: 0)
             .background {
                 Button("") {
-                    withAnimation(.easeInOut(duration: 0.15)) { sidebarTab = .files }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { fileSearchTrigger.toggle() }
+                    windowState.requestFileSearch()
                 }
                 .keyboardShortcut("f", modifiers: .command)
                 .hidden()
 
                 Button("") {
                     columnVisibility = .all
-                    withAnimation(.easeInOut(duration: 0.15)) { sidebarTab = .history }
                 }
                 .keyboardShortcut("1", modifiers: .command)
                 .hidden()
-
-                Button("") {
-                    columnVisibility = .all
-                    withAnimation(.easeInOut(duration: 0.15)) { sidebarTab = .files }
-                }
-                .keyboardShortcut("2", modifiers: .command)
-                .hidden()
             }
+    }
+}
+
+// MARK: - Inspector Commands Publisher
+
+/// Publishes this window's inspector actions to the View menu. Isolated so that
+/// toggling the inspector does not re-evaluate the enclosing view.
+struct InspectorCommandsPublisher: View {
+    @Environment(WindowState.self) private var windowState
+
+    var body: some View {
+        let windowState = windowState
+        Color.clear
+            .frame(width: 0, height: 0)
+            .focusedSceneValue(\.inspectorCommands, InspectorCommands(
+                isInspectorShown: windowState.showInspector,
+                toggleInspector: { windowState.showInspector.toggle() },
+                showFiles: { windowState.showInspectorTab(.files) }
+            ))
     }
 }
 
