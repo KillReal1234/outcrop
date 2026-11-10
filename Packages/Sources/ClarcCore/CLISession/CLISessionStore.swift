@@ -157,6 +157,74 @@ public actor CLISessionStore {
         return nil
     }
 
+    // MARK: - Project discovery
+
+    /// Working directory recorded in one CLI projects sub-directory, with the
+    /// modification date of its newest session file.
+    public struct DiscoveredCwd: Sendable, Equatable {
+        public let cwd: String
+        public let lastActivity: Date
+    }
+
+    private static let discoveryHeadBytes = 64 * 1024
+
+    /// Per-directory discovery cache. A directory's cwd never changes, so a
+    /// read cwd is kept for the store's lifetime; a directory whose newest file
+    /// had no readable cwd is re-read only once a newer session file appears.
+    private enum DiscoveryCacheEntry {
+        case cwd(String)
+        case unreadable(newestFile: URL)
+    }
+    private var discoveryCache: [URL: DiscoveryCacheEntry] = [:]
+
+    /// The `cwd` of every sub-directory of `~/.claude/projects`, newest
+    /// activity first. Only the head of each directory's newest jsonl is read,
+    /// and only its `cwd` field is decoded (see `ProjectDiscovery`).
+    public func discoveredCwds() -> [DiscoveredCwd] {
+        let fm = FileManager.default
+        guard let dirs = try? fm.contentsOfDirectory(
+            at: CLIProjectsDirectory.url,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: .skipsHiddenFiles
+        ) else { return [] }
+
+        var result: [DiscoveredCwd] = []
+        for dir in dirs where (try? dir.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
+            guard let files = try? fm.contentsOfDirectory(
+                at: dir,
+                includingPropertiesForKeys: [.contentModificationDateKey],
+                options: .skipsHiddenFiles
+            ) else { continue }
+            let newest = files
+                .filter { $0.pathExtension == "jsonl" }
+                .map { (url: $0, date: mtime(of: $0) ?? .distantPast) }
+                .max { $0.date < $1.date }
+            guard let newest else { continue }
+
+            let cwd: String?
+            switch discoveryCache[dir] {
+            case .cwd(let cached):
+                cwd = cached
+            case .unreadable(let file) where file == newest.url:
+                cwd = nil
+            default:
+                cwd = Self.readCwd(fromHeadOf: newest.url)
+                discoveryCache[dir] = cwd.map { .cwd($0) } ?? .unreadable(newestFile: newest.url)
+            }
+            if let cwd {
+                result.append(DiscoveredCwd(cwd: cwd, lastActivity: newest.date))
+            }
+        }
+        return result.sorted { $0.lastActivity > $1.lastActivity }
+    }
+
+    private static func readCwd(fromHeadOf file: URL) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: file) else { return nil }
+        defer { try? handle.close() }
+        guard let data = try? handle.read(upToCount: discoveryHeadBytes) else { return nil }
+        return ProjectDiscovery.cwd(fromSessionFileHead: data)
+    }
+
     // MARK: - Summaries
 
     /// Fast, sniff-only summary list for a project's CLI sessions. Pass

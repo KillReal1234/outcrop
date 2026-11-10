@@ -149,7 +149,8 @@ struct MainView: View {
                 HStack(spacing: 4) {
                     // isSelected is computed here and passed as a value so ProjectTabButton.body
                     // does not access windowState.selectedProject — only the 2 changed buttons re-render.
-                    ForEach(appState.projects) { project in
+                    // Only open projects get a tab; the sidebar lists all of them.
+                    ForEach(appState.openProjectList) { project in
                         ProjectTabButton(
                             project: project,
                             isSelected: windowState.selectedProject?.id == project.id,
@@ -330,30 +331,60 @@ struct ProjectTabButton: View {
     @Binding var projectToRename: Project?
     @Binding var renameText: String
 
+    @State private var isHovering = false
+
+    /// The close button shows on hover and on the selected tab, like macOS window tabs.
+    private var showsCloseButton: Bool { isHovering || isSelected }
+
     var body: some View {
-        Button {
-            appState.selectProject(project, in: windowState)
-        } label: {
-            HStack(spacing: 5) {
-                Image(systemName: "folder.fill")
-                    .font(.system(size: ClaudeTheme.size(11)))
-                Text(project.name)
-                    .font(.system(size: ClaudeTheme.size(13), weight: .medium))
-                    .lineLimit(1)
+        HStack(spacing: 2) {
+            Button {
+                appState.selectProject(project, in: windowState)
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "folder.fill")
+                        .font(.system(size: ClaudeTheme.size(11)))
+                    Text(project.name)
+                        .font(.system(size: ClaudeTheme.size(13), weight: .medium))
+                        .lineLimit(1)
+                }
+                .padding(.leading, 10)
+                .padding(.vertical, 5)
+                .contentShape(Rectangle())
             }
-            .foregroundStyle(isSelected ? ClaudeTheme.textOnAccent : ClaudeTheme.textSecondary)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(
-                isSelected ? ClaudeTheme.accent : ClaudeTheme.surfaceSecondary,
-                in: RoundedRectangle(cornerRadius: ClaudeTheme.cornerRadiusSmall)
-            )
+            .buttonStyle(.plain)
+            .onTapGesture(count: 2) {
+                openWindow(id: "project-window", value: ProjectWindowValue(projectId: project.id, instanceId: UUID()))
+            }
+
+            // Kept in the layout when hidden so tab widths do not jump on hover.
+            Button {
+                appState.closeProjectTab(project, in: windowState)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: ClaudeTheme.size(9), weight: .semibold))
+                    .frame(width: 16, height: 16)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .opacity(showsCloseButton ? 1 : 0)
+            .allowsHitTesting(showsCloseButton)
+            .help("Close Tab")
+            .accessibilityLabel("Close Tab")
+            .padding(.trailing, 4)
         }
-        .buttonStyle(.plain)
-        .onTapGesture(count: 2) {
-            openWindow(id: "project-window", value: ProjectWindowValue(projectId: project.id, instanceId: UUID()))
-        }
+        .foregroundStyle(isSelected ? ClaudeTheme.textOnAccent : ClaudeTheme.textSecondary)
+        .background(
+            isSelected ? ClaudeTheme.accent : ClaudeTheme.surfaceSecondary,
+            in: RoundedRectangle(cornerRadius: ClaudeTheme.cornerRadiusSmall)
+        )
+        .onHover { isHovering = $0 }
         .contextMenu {
+            Button {
+                appState.closeProjectTab(project, in: windowState)
+            } label: {
+                Label("Close Tab", systemImage: "xmark")
+            }
             Button {
                 renameText = project.name
                 projectToRename = project

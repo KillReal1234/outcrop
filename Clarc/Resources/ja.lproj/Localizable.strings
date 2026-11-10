@@ -69,6 +69,7 @@
 // MARK: - SkillMarketView
 "Refresh" = "更新";
 "Close" = "閉じる";
+"Close Tab" = "タブを閉じる";
 "Search skills..." = "スキルを検索...";
 "All" = "すべて";
 "Installed" = "インストール済み";

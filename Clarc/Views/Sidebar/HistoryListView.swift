@@ -110,9 +110,10 @@ struct HistoryListView: View {
         // Fully custom selection: no `List(selection:)` binding, so macOS never
         // paints its system-accent highlight. We track selection ourselves and
         // draw the selected row with the theme color via `.listRowBackground`.
-        List {
-            ForEach(sessions) { session in
-                sessionItem(session)
+        let visible = sessions
+        return List {
+            ForEach(visible) { session in
+                sessionItem(session, visible: visible)
             }
         }
         .listStyle(.sidebar)
@@ -124,7 +125,11 @@ struct HistoryListView: View {
     /// Main-window list: sessions in sections under project headings. A
     /// collapsed section simply yields no rows; selection stays fully custom.
     private func groupedSessionList(_ groups: [SessionGroup]) -> some View {
-        List {
+        // Flatten once per render; rows and their context menus share it
+        // instead of regrouping every session per row.
+        let visible = SessionGrouping.visibleSessions(in: groups, collapsed: collapsedProjectIds)
+            .map(DisplaySession.init)
+        return List {
             NewSessionRow()
 
             ForEach(groups) { group in
@@ -135,7 +140,7 @@ struct HistoryListView: View {
                             noSessionsRow
                         } else {
                             ForEach(group.sessions) { summary in
-                                sessionItem(DisplaySession(summary))
+                                sessionItem(DisplaySession(summary), visible: visible)
                             }
                         }
                     }
@@ -164,12 +169,12 @@ struct HistoryListView: View {
         }
     }
 
-    private func sessionItem(_ session: DisplaySession) -> some View {
+    private func sessionItem(_ session: DisplaySession, visible: [DisplaySession]) -> some View {
         sessionRow(session)
             .listRowBackground(rowBackground(for: session))
             .contentShape(Rectangle())
             .onTapGesture { handleTap(session) }
-            .contextMenu { sessionContextMenu(for: contextTargets(for: session)) }
+            .contextMenu { sessionContextMenu(for: session, visible: visible) }
     }
 
     private var noSessionsRow: some View {
@@ -305,13 +310,17 @@ struct HistoryListView: View {
 
     // MARK: - Context Menu
 
-    /// Context menu for the right-clicked selection. `ids` is the effective
-    /// target set macOS hands us: the full selection when right-clicking a
-    /// selected row, or just the clicked row otherwise. Rename is hidden for
+    /// Context menu for the right-clicked row. Targets are the full selection
+    /// when right-clicking a selected row, or just the clicked row otherwise.
+    /// `visible` is the precomputed on-screen list, filtered only for a
+    /// multi-selection so targets keep on-screen order. Rename is hidden for
     /// multi-selections; pin/complete/delete apply to every targeted session.
     @ViewBuilder
-    private func sessionContextMenu(for ids: Set<String>) -> some View {
-        let targets = sessions.filter { ids.contains($0.id) }
+    private func sessionContextMenu(for session: DisplaySession, visible: [DisplaySession]) -> some View {
+        let ids = contextTargets(for: session)
+        let targets = ids.count == 1 && ids.contains(session.id)
+            ? [session]
+            : visible.filter { ids.contains($0.id) }
         if !targets.isEmpty {
             if targets.count == 1, let only = targets.first {
                 Button {
